@@ -28,7 +28,7 @@ void BackEnd::write(size_type index, const char* ptr, size_type n) {
 	}
 }
 
-BackEnd::BackEnd(size_type size) :pool_(size),stop_(false) {
+BackEnd::BackEnd(size_type size) :pool_(size) {
 	for (size_type i = 0; i < FILES; ++i) {
 		out_streams_[i] = nullptr;
 	}
@@ -69,12 +69,11 @@ BufContainer& BackEnd::buf_container(size_type index) {
 //需要是线程安全的,可能在不同线程调用stop函数。
 //考虑用原子变量实现线程安全。
 void BackEnd::stop() {
-	if (stop_ == false) {
+	if (!stop_.test_and_set()) {
 		for (size_type i = 0; i < FILES; ++i) {
 			buf_container(i).stop();
 		}
 		pool_.stop();
-		stop_ = true;
 	}
 }
 

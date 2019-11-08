@@ -2,6 +2,7 @@
 #include <list>
 #include <mutex>
 #include <condition_variable>
+#include <atomic>
 #include <iostream>
 #include "char_array.h"
 #include "type.h"

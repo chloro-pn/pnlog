@@ -29,7 +29,7 @@ bool BufContainer::write(const char* ptr, size_type n) {
 			return false;
 		}
 	}
-	return false;
+	return true;
 }
 
 void BufContainer::swapInBack() { //д�뷽
