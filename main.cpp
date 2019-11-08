@@ -9,28 +9,28 @@
 
 int main()
 {
-	capture.setLevel(CapTure::Level::TRACE);
-	backend.open(2, new FileOutStream("e://test.txt"));
-	clock_t start, end;
-	start = clock();
-  std::thread th([&]() {
-    for (int i = 0; i < 1000; ++i) {
-      capture.log_debug(2, __LINE__, __FILE__, piece("hello world!", i));
-    };
-  });
-  std::thread th2([&]() {
-    for (int i = 0; i < 1000; ++i) {
-      capture.log_debug(2, __LINE__, __FILE__, piece("hello", i));
-    }
-    capture.log_fatal(2, __LINE__, __FILE__, piece("hello"));
-  });
-  th.join();
-  th2.join();
-	end = clock();
-	std::cout << (double)(end - start) / CLOCKS_PER_SEC;
-	backend.stop();
-  system("pause");
-	return 0;
+    capture.setLevel(CapTure::Level::TRACE);
+    backend.open(2, new FileOutStream("e://test.txt"));
+    clock_t start, end;
+    start = clock();
+    std::thread th([&]() {
+      for (int i = 0; i < 1000; ++i) {
+        capture.log_debug(2, __LINE__, __FILE__, piece("hello world!", i));
+      };
+    });
+    std::thread th2([&]() {
+      for (int i = 0; i < 1000; ++i) {
+        capture.log_debug(2, __LINE__, __FILE__, piece("hello", i));
+      }
+      capture.log_fatal(2, __LINE__, __FILE__, piece("hello"));
+    });
+    th.join();
+    th2.join();
+    end = clock();
+    std::cout << (double)(end - start) / CLOCKS_PER_SEC;
+    backend.stop();
+    system("pause");
+    return 0;
 }
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
