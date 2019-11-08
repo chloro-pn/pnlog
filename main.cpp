@@ -10,14 +10,14 @@
 int main()
 {
 	capture.setLevel(CapTure::Level::TRACE);
-	backend.open(2, new FileOutStream("d://test.txt"));
+	backend.open(2, new FileOutStream("e://test.txt"));
 	clock_t start, end;
 	start = clock();
 	std::thread th([&]()->void {
 		for (int i = 0; i < 100; ++i) {
 			capture.log_debug(0, __LINE__,__FILE__,piece("hello world!", i));
 		}
-		capture.log_fatal(3, __LINE__, __FILE__, "hello");
+		capture.log_fatal(2, __LINE__, __FILE__, "hello");
 		});
 	std::thread th2([&]()->void {
 		for (int i = 0; i < 1000000; ++i) {

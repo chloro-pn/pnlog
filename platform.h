@@ -33,6 +33,6 @@ public:
 	}
 };
 
-#ifdef WIN32
+#ifdef _WIN32
 using pf = platform<win>;
 #endif
