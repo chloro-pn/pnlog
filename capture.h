@@ -41,5 +41,6 @@ public:
 	void log_error(size_type index, size_type line, const char* file, const std::string& str);
 
 	void log_fatal(size_type index, size_type line, const char* file, const std::string& str);
+
 	~CapTure();
 };

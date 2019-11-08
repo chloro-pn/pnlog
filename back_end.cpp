@@ -9,6 +9,9 @@ static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size
 //这个函数不是线程安全的，是前后端连接的纽带。
 //前端通过线程安全的组件在一个线程中调用此函数
 void BackEnd::write(size_type index, const char* ptr, size_type n) {
+  if (stop_.load() == true) {
+    return;
+  }
 	rangecheck(index);
 	if (out_stream(index) == nullptr) {
 		pf::fprintf(stderr, "write non-opened file : %d\n", static_cast<int>(index));
@@ -28,7 +31,7 @@ void BackEnd::write(size_type index, const char* ptr, size_type n) {
 	}
 }
 
-BackEnd::BackEnd(size_type size) :pool_(size) {
+BackEnd::BackEnd(size_type size) :pool_(size),stop_(false) {
 	for (size_type i = 0; i < FILES; ++i) {
 		out_streams_[i] = nullptr;
 	}
@@ -69,8 +72,9 @@ BufContainer& BackEnd::buf_container(size_type index) {
 //需要是线程安全的,可能在不同线程调用stop函数。
 //考虑用原子变量实现线程安全。
 void BackEnd::stop() {
-	if (!stop_.test_and_set()) {
-		for (size_type i = 0; i < FILES; ++i) {
+  bool exp = false;
+	if (stop_.compare_exchange_strong(exp,true)) {
+		for (size_type i = 2; i < FILES; ++i) {
 			buf_container(i).stop();
 		}
 		pool_.stop();

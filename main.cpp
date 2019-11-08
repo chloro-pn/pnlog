@@ -13,9 +13,19 @@ int main()
 	backend.open(2, new FileOutStream("e://test.txt"));
 	clock_t start, end;
 	start = clock();
-		for (int i = 0; i < 1000000; ++i) {
-			capture.log_debug(2, __LINE__,__FILE__,piece("hello world!", i));
+  std::thread th([&]() {
+    for (int i = 0; i < 1000; ++i) {
+      capture.log_debug(2, __LINE__, __FILE__, piece("hello world!", i));
     };
+  });
+  std::thread th2([&]() {
+    for (int i = 0; i < 1000; ++i) {
+      capture.log_debug(2, __LINE__, __FILE__, piece("hello", i));
+    }
+    capture.log_fatal(2, __LINE__, __FILE__, piece("hello"));
+  });
+  th.join();
+  th2.join();
 	end = clock();
 	std::cout << (double)(end - start) / CLOCKS_PER_SEC;
 	backend.stop();
