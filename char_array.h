@@ -17,6 +17,7 @@ public:
 	}
 
 	CharArray(const CharArray& other) = delete;
+
 	CharArray& operator=(const CharArray&) = delete;
 
 	CharArray(CharArray&& other) noexcept {
@@ -26,7 +27,6 @@ public:
 		error_ = other.error_;
 		other.buf_ = nullptr;
 	}
-
 
 	CharArray& operator=(CharArray&& other) noexcept {
 		delete[] buf_;

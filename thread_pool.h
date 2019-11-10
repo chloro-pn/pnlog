@@ -18,46 +18,13 @@ private:
 	bool stop_;
 
 public:
-	ThreadPool(size_type count):th_counts_(count),stop_(false) {
+	ThreadPool(size_type count);
 
-	}
+	void each_thread();
 
-	void each_thread() {
-		while (true) {
-			std::unique_lock<std::mutex> lock(mut_);
-			while (tasks_.empty() == true && stop_ == false) {
-				cv_.wait(lock);
-			}
-			if (stop_ == true && tasks_.empty() == true) {
-				return;
-			}
-			auto tmp = std::move(tasks_.front());
-			tasks_.erase(tasks_.begin());
-			lock.unlock();
-			bool conti = tmp();
-			if (conti == true) {
-				push_task(tmp);
-			}
-		}
-	}
+	void start();
 
-	void start() {
-		for (size_type i = 0; i < th_counts_; ++i) {
-			threads_.emplace_back([this]()->void {
-				this->each_thread();
-				});
-		}
-	}
-
-	void stop() {
-		mut_.lock();
-		stop_ = true;
-		mut_.unlock();
-		cv_.notify_all();
-		for (auto it = threads_.begin(); it != threads_.end(); ++it) {
-			it->join();
-		}
-	}
+	void stop();
 
 	template<class F>
 	void push_task(const F& func) {
@@ -67,7 +34,6 @@ public:
 		cv_.notify_one();
 	}
 
-	~ThreadPool() {
 
-	}
+	~ThreadPool();
 };

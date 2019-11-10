@@ -42,5 +42,13 @@ public:
 
 	void log_fatal(size_type index, size_type line, const char* file, const std::string& str);
 
+	void log_trace(size_type index, const std::string& str);
+  
+	void log_debug(size_type index, const std::string& str);
+
+	void log_error(size_type index, const std::string& str);
+  
+	void log_fatal(size_type index, const std::string& str);
+
 	~CapTure();
 };

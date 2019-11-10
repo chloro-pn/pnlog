@@ -1,11 +1,6 @@
 #pragma once
-#include "back_end.h"
-#include "capture.h"
 #include "convert.h"
 #include <string>
-
-extern BackEnd backend;
-extern CapTure capture;
 
 template<class LastType>
 std::string piece(const LastType& last) {

@@ -5,22 +5,22 @@
 //前端： 
 #include <thread>
 #include <ctime>
-#include "str_appender.h"
+#include "pnlog.h"
 
 int main()
 {
     capture.setLevel(CapTure::Level::TRACE);
-    backend.open(2, new FileOutStream("e://test.txt"));
+    backend.open(2, new FileOutStream("d://test.txt"));
     clock_t start, end;
     start = clock();
     std::thread th([&]() {
       for (int i = 0; i < 1000; ++i) {
-        capture.log_debug(2, __LINE__, __FILE__, piece("hello world!", i));
+        capture.log_debug(0, __LINE__, __FILE__, piece("hello world!", i));
       };
     });
     std::thread th2([&]() {
       for (int i = 0; i < 1000; ++i) {
-        capture.log_debug(2, __LINE__, __FILE__, piece("hello", i));
+        capture.log_debug(0, __LINE__, __FILE__, piece("hello", i));
       }
       capture.log_fatal(2, __LINE__, __FILE__, piece("hello"));
     });

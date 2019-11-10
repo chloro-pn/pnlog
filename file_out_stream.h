@@ -13,7 +13,5 @@ public:
 
 	void write(const char* ptr, size_type n) override;
 
-	void close() override ;
-
 	~FileOutStream();
 };
