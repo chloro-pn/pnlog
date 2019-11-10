@@ -15,8 +15,9 @@ void CapTure::log(size_type index, Level level,size_type line, const char* file,
 	tmp.append(str.c_str());
 	tmp.append("\n");
 	if (tmp.error() == true) {
-		pf::fprintf(stderr, "log is too long!\n");
 		back_.stop();
+		pf::fprintf(stderr, "log is too long!\n");
+		system("pause");
 		exit(-1);
 	}
 	std::unique_lock<std::mutex> mut(mut_);
@@ -24,6 +25,7 @@ void CapTure::log(size_type index, Level level,size_type line, const char* file,
 	mut.unlock();
 	if (level == Level::FATAL) {
 		back_.stop();//需要是线程安全的。
+		system("pause");
 		exit(-1);
 	}
 	tmp.setZero();
@@ -50,6 +52,30 @@ void CapTure::log_error(size_type index, size_type line, const char* file, const
 void CapTure::log_fatal(size_type index, size_type line, const char* file, const std::string& str) {
 	if (default_level_ <= Level::FATAL) {
 		log(index, Level::FATAL, line, file, str);
+	}
+}
+
+void CapTure::log_trace(size_type index, const std::string& str) {
+	if (default_level_ <= Level::TRACE) {
+		log(index, Level::TRACE, -1, "", str);
+	}
+}
+
+void CapTure::log_debug(size_type index, const std::string& str) {
+	if (default_level_ <= Level::DEBUG) {
+		log(index, Level::DEBUG, -1, "", str);
+	}
+}
+
+void CapTure::log_error(size_type index, const std::string& str) {
+	if (default_level_ <= Level::ERROR) {
+		log(index, Level::ERROR, -1, "", str);
+	}
+}
+
+void CapTure::log_fatal(size_type index, const std::string& str) {
+	if (default_level_ <= Level::FATAL) {
+		log(index, Level::FATAL, -1, "", str);
 	}
 }
 

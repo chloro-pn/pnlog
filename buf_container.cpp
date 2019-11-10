@@ -24,7 +24,7 @@ bool BufContainer::write(const char* ptr, size_type n) {
 	buf_.append(ptr, n);
 	if (buf_.error() == true) {
 		swapInBack();
-		buf_.append(ptr, n); //如果向后端输出的log太长怎么处理？考虑这个问题。要确保前端传来的log至少能被空的一个buf装入并write，否则陷入无限递归。
+		buf_.append(ptr, n); //ptr不能装入一个空的buf
 		if (buf_.error() == true) {
 			return false;
 		}
@@ -32,7 +32,7 @@ bool BufContainer::write(const char* ptr, size_type n) {
 	return true;
 }
 
-void BufContainer::swapInBack() { //写入方
+void BufContainer::swapInBack() { 
 	std::unique_lock<std::mutex> mut(mut_);
 	if (buf_.getSize() == 0) {
 		return;
@@ -54,15 +54,13 @@ void BufContainer::swapInBack() { //写入方
 bool BufContainer::backEnd(std::shared_ptr<out_stream_base> out) {
 	static CharArrayType backbuf(buf_size_); 
 	std::unique_lock<std::mutex> mut(mut_);
-	if (the_first_clean_ <= 1 && stop_ == true) { //actually the_first_clean_不会小于1.
-		return false; //stop_是为了实现在线程中不断地自我加入，如果返回false
-		//则意味着不再自我加入了。
-		//当调用stop时，不仅将stop_设置为true，还要将当前未满的buf转换到后台写入文件。
+	if (the_first_clean_ <= 1 && stop_ == true) { 
+		return false;
 	}
 	if (the_first_clean_ <= 1 && stop_ == false) {
 		return true;
 	}
-	//std::cout << "buf back end : " << the_first_clean_ << "\n";
+
 	CharArrayType tmp = std::move(other_buf_.front());
 	other_buf_.erase(other_buf_.begin());
 	other_buf_.push_back(std::move(tmp));

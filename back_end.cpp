@@ -9,13 +9,14 @@ static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size
 //这个函数不是线程安全的，是前后端连接的纽带。
 //前端通过线程安全的组件在一个线程中调用此函数
 void BackEnd::write(size_type index, const char* ptr, size_type n) {
-  if (stop_.load() == true) {
-    return;
-  }
+	if (stop_.load() == true) {
+		return;
+	}
 	rangecheck(index);
 	if (out_stream(index) == nullptr) {
-		pf::fprintf(stderr, "write non-opened file : %d\n", static_cast<int>(index));
 		stop();
+		pf::fprintf(stderr, "write non-opened file : %d\n", static_cast<int>(index));
+		system("pause");
 		exit(-1);
 	}
 	if (buf_container(index).inited() == false) {
@@ -24,8 +25,9 @@ void BackEnd::write(size_type index, const char* ptr, size_type n) {
 	else {
 		bool succ = buf_container(index).write(ptr, n);
 		if (succ == false) {
-			pf::fprintf(stderr, "buf_container write error:%d\n",static_cast<int>(index));
 			stop();
+			pf::fprintf(stderr, "buf_container write error:%d\n",static_cast<int>(index));
+			system("pause");
 			exit(-1);
 		}
 	}
@@ -43,8 +45,9 @@ BackEnd::BackEnd(size_type size) :pool_(size),stop_(false) {
 void BackEnd::open(size_type index,out_stream_base* out, size_type log_container_size) {
 	rangecheck(index);
 	if (out_stream(index) != nullptr) {
-		pf::fprintf(stderr, "register opened file");
 		stop();
+    pf::fprintf(stderr, "register opened file");
+    system("pause");
 		exit(-1);
 	}
 
@@ -53,8 +56,7 @@ void BackEnd::open(size_type index,out_stream_base* out, size_type log_container
 
 	pool_.push_task([this,index]()->bool {
 		return buf_container(index).backEnd(out_stream(index));
-		//上一个bug居然是这里的捕获有问题。emm
-		});
+	});
 }
 
 inline
@@ -69,12 +71,10 @@ BufContainer& BackEnd::buf_container(size_type index) {
 	return buf_containers_[index];
 }
 
-//需要是线程安全的,可能在不同线程调用stop函数。
-//考虑用原子变量实现线程安全。
 void BackEnd::stop() {
-  bool exp = false;
+	bool exp = false;
 	if (stop_.compare_exchange_strong(exp,true)) {
-		for (size_type i = 2; i < FILES; ++i) {
+		for (size_type i = 0; i < FILES; ++i) {
 			buf_container(i).stop();
 		}
 		pool_.stop();
@@ -87,8 +87,9 @@ BackEnd::~BackEnd() {
 
 void BackEnd::rangecheck(size_type index) const {
 	if (index < 0 || index >= FILES) {
-		pf::fprintf(stderr, "index out of range");
 		const_cast<BackEnd*>(this)->stop();
+    pf::fprintf(stderr, "index out of range");
+    system("pause");
 		exit(-1);
 	}
 }
