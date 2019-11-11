@@ -52,7 +52,8 @@ pnlog库提供两个全局对象：capture和backend，capture对象用来捕获
 第二步：记录日志（可以选择记录文件名称和行号的重载函数）
 
 <code>	capture.log_debug(2, piece("hello world !my number is ", 23));</code>
-<code>  capture.log_error(1, __LINE__,__FILE__,piece("there is something wrong!"));</code>
+
+<code>  capture.log_error(1, \_\_LINE\_\_,\_\_FILE\_\_,piece("there is something wrong!"));</code>
 
 第三步：程序结束前调用backend.stop();
 
