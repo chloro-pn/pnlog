@@ -4,6 +4,7 @@
 #include "buf_container.h"
 #include "thread_pool.h"
 #include "out_stream_base.h"
+#include "spin_lock.h"
 #include <memory>
 #include <atomic>
 
@@ -23,13 +24,17 @@ public:
 
 	void stop();
 
+  void abort();
+
 	~BackEnd();
 
 private:
 	ThreadPool pool_;
 	std::shared_ptr<out_stream_base> out_streams_[FILES];
 	BufContainer buf_containers_[FILES];
+  spin spins_[FILES];
 	std::atomic<bool> stop_;
+  std::atomic<bool> abort_;
 
-	void rangecheck(size_type index) const;
+	bool rangecheck(size_type index) const;
 };

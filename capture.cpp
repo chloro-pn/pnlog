@@ -1,5 +1,6 @@
 #include "capture.h"
 #include "platform.h"
+#include <Windows.h>
 
 CapTure::CapTure(BackEnd& b) :back_(b), index_(0) {
 
@@ -17,8 +18,7 @@ void CapTure::log(size_type index, Level level,size_type line, const char* file,
 	if (tmp.error() == true) {
 		back_.stop();
 		pf::fprintf(stderr, "log is too long!\n");
-		system("pause");
-		exit(-1);
+    back_.abort();
 	}
   spins_[index].lock();
   //mut_.lock();
@@ -26,9 +26,8 @@ void CapTure::log(size_type index, Level level,size_type line, const char* file,
   spins_[index].unlock();
   //mut_.unlock();
 	if (level == Level::FATAL) {
-		back_.stop();//需要是线程安全的。
-		system("pause");
-		exit(-1);
+		back_.stop();//只有一个线程会调用。
+    back_.abort();
 	}
 	tmp.setZero();
 }
@@ -46,8 +45,8 @@ void CapTure::log_debug(size_type index, size_type line, const char* file, const
 }
 
 void CapTure::log_error(size_type index, size_type line, const char* file, const std::string& str) {
-	if (default_level_ <= Level::ERROR) {
-		log(index, Level::ERROR, line, file, str);
+	if (default_level_ <= Level::eERROR) {
+		log(index, Level::eERROR, line, file, str);
 	}
 }
 
@@ -70,8 +69,8 @@ void CapTure::log_debug(size_type index, const std::string& str) {
 }
 
 void CapTure::log_error(size_type index, const std::string& str) {
-	if (default_level_ <= Level::ERROR) {
-		log(index, Level::ERROR, -1, "", str);
+	if (default_level_ <= Level::eERROR) {
+		log(index, Level::eERROR, -1, "", str);
 	}
 }
 

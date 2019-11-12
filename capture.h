@@ -15,7 +15,7 @@
 
 class CapTure {
 public:
-	enum class Level { TRACE, DEBUG, ERROR, FATAL };
+	enum class Level { TRACE, DEBUG, eERROR, FATAL };
 
 private:
 	BackEnd& back_;
@@ -30,7 +30,7 @@ public:
 
 	static void setLevel(Level l);
 
-	static Level getLevel() ;
+  static Level getLevel();
 
 	CapTure(BackEnd& b);
 
