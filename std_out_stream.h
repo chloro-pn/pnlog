@@ -5,12 +5,12 @@
 
 class StdOutStream : public out_stream_base {
 public:
-	StdOutStream(FILE* f);
+  StdOutStream(FILE* f);
 
-	void write(const char* ptr, size_type n) override;
+  void write(const char* ptr, size_type n) override;
 
-	~StdOutStream();
+  ~StdOutStream();
 
 private:
-	FILE* file_;
+  FILE* file_;
 };

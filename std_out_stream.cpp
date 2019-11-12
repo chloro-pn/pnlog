@@ -8,7 +8,7 @@ StdOutStream::StdOutStream(FILE* f) :file_(f) {
 
 void StdOutStream::write(const char* ptr, size_type n) {
 	//fprintf_s(file_, ptr);
-	pf::fprintf(file_, ptr);
+  pf::fprintf(file_, ptr);
 }
 
 

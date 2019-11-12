@@ -6,8 +6,6 @@
 
 static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size should >= capture buf_size!");
 
-//当把前前端的mutex换成基于文件的span lock之后，此函数可能被不同线程调用。
-
 void BackEnd::write(size_type index, const char* ptr, size_type n) {
   if (stop_.load() == true) {
     return;

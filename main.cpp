@@ -9,24 +9,24 @@
 
 int main()
 {
-    capture.setLevel(CapTure::Level::TRACE);
-    for (int i = 2; i < 8; ++i) {
-      backend.open(i, new FileOutStream(piece("e://test", i, ".txt")));
+  capture.setLevel(CapTure::Level::TRACE);
+  for (int i = 2; i < 8; ++i) {
+    backend.open(i, new FileOutStream(piece("e://test", i, ".txt")));
+  }
+  std::vector<std::thread> ths;
+  clock_t start, end;
+  start = clock();
+  for (int i = 0; i < 6; ++i) {
+    ths.emplace_back([&,i]() {
+    for (int k = 0; k < 10000; ++k) {
+      capture.log_debug(i + 2 , __LINE__, __FILE__, piece("hello world! : ", i," ",k));
     }
-    std::vector<std::thread> ths;
-    clock_t start, end;
-    start = clock();
-    for (int i = 0; i < 6; ++i) {
-      ths.emplace_back([&,i]() {
-        for (int k = 0; k < 10000; ++k) {
-          capture.log_debug(i + 2 , __LINE__, __FILE__, piece("hello world! : ", i," ",k));
-        }
-      });
-    }
-    for (int i = 0; i < 6; ++i) {
-      ths.at(i).join();
-    }
-    end = clock();
-    std::cout << (double)(end - start) / CLOCKS_PER_SEC;
-    return 0;
+    });
+  }
+  for (int i = 0; i < 6; ++i) {
+    ths.at(i).join();
+  }
+  end = clock();
+  std::cout << (double)(end - start) / CLOCKS_PER_SEC;
+  return 0;
 }

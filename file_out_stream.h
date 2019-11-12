@@ -6,12 +6,12 @@
 
 class FileOutStream : public out_stream_base {
 private:
-	FILE* file_;
+  FILE* file_;
 
 public:
-	FileOutStream(std::string filename);
+  FileOutStream(std::string filename);
 
-	void write(const char* ptr, size_type n) override;
+  void write(const char* ptr, size_type n) override;
 
-	~FileOutStream();
+  ~FileOutStream();
 };
