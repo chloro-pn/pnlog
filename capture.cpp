@@ -20,9 +20,11 @@ void CapTure::log(size_type index, Level level,size_type line, const char* file,
 		system("pause");
 		exit(-1);
 	}
-	std::unique_lock<std::mutex> mut(mut_);
+  spins_[index].lock();
+  //mut_.lock();
 	back_.write(index, tmp.getBuf(), tmp.getSize());
-	mut.unlock();
+  spins_[index].unlock();
+  //mut_.unlock();
 	if (level == Level::FATAL) {
 		back_.stop();//需要是线程安全的。
 		system("pause");

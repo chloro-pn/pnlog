@@ -3,6 +3,7 @@
 #include "back_end.h"
 #include "type.h"
 #include "convert.h"
+#include "spin_lock.h"
 #include <array>
 #include <iostream>
 #include <functional>
@@ -10,7 +11,7 @@
 #include <list>
 #include <condition_variable>
 #include <mutex>
-
+#include <array>
 
 class CapTure {
 public:
@@ -20,6 +21,7 @@ private:
 	BackEnd& back_;
 	size_type index_;
 	std::mutex mut_;
+  std::array<spin, BackEnd::FILES> spins_;
 	static Level default_level_;
 
 public:
