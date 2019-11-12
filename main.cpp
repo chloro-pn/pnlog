@@ -18,7 +18,7 @@ int main()
   start = clock();
   for (int i = 0; i < 6; ++i) {
     ths.emplace_back([&,i]() {
-    for (int k = 0; k < 10000; ++k) {
+    for (int k = 0; k < 1000000; ++k) {
       capture.log_debug(i + 2 , __LINE__, __FILE__, piece("hello world! : ", i," ",k));
     }
     });
@@ -28,5 +28,6 @@ int main()
   }
   end = clock();
   std::cout << (double)(end - start) / CLOCKS_PER_SEC;
+  system("pause");
   return 0;
 }
