@@ -20,7 +20,7 @@ public:
 private:
 	BackEnd& back_;
 	size_type index_;
-	std::mutex mut_;
+	//std::mutex mut_;
   std::array<spin, BackEnd::FILES> spins_;
 	static Level default_level_;
 
