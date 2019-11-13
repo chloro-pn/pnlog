@@ -13,7 +13,16 @@ private:
 
 public:
   explicit CharArray(size_type size = 1024):buf_(nullptr),size_(size),end_(0),error_(false) {
-	  buf_ = new char[static_cast<unsigned int>(size)](); //值初始化
+    try {
+      buf_ = new char[static_cast<unsigned int>(size)](); //值初始化
+    }
+    catch (const std::exception& e) {
+      printf_s(e.what());
+    }
+  }
+
+  ~CharArray() {
+    delete[] buf_;
   }
 
   CharArray(const CharArray& other) = delete;
@@ -48,7 +57,7 @@ public:
 	  memcpy_s(&buf_[end_], static_cast<rsize_t>(capacity), ptr, static_cast<rsize_t>(nbyte));
 	  end_ += nbyte;
 	  buf_[end_] = '\0';
-        return;
+    return;
   }
 
   void append(const char* ptr) {

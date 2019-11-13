@@ -9,6 +9,7 @@
 #include "out_stream_base.h"
 
 class BufContainer {
+  friend class BackEnd;
 private:
   using CharArrayType = CharArray;
   CharArrayType buf_;
@@ -32,7 +33,7 @@ public:
     return inited_;
   }
 
-  bool write(const char* ptr, size_type n);
+  void write(const char* ptr, size_type n);
 
   void swapInBack();
 

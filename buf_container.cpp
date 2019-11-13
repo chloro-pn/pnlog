@@ -1,6 +1,7 @@
 #include "buf_container.h"
 #include "out_stream_base.h"
 #include "platform.h"
+#include <Windows.h>
 
 BufContainer::BufContainer() :the_first_clean_(1), 
                               inited_(false), 
@@ -14,50 +15,63 @@ bool BufContainer::init(size_type bufs) {
   if (bufs < 1) {
     return false;
   }
-  other_buf_.resize(static_cast<unsigned int>(bufs));
+  //other_buf_.resize(static_cast<unsigned int>(bufs));
+  for (size_type i = 0; i < bufs; ++i) {
+    other_buf_.emplace_back(buf_size_);
+  }
   bufs_ = bufs;
   inited_ = true;
   return true;
 }
 
-bool BufContainer::write(const char* ptr, size_type n) {
+//最后就是解决这里，当某个线程fatal后，其他线程还在调用write函数写日志，怎么处理？
+//
+void BufContainer::write(const char* ptr, size_type n) {
+  std::unique_lock<std::mutex> mut(mut_);
   buf_.append(ptr, n);
   if (buf_.error() == true) {
-    swapInBack();
-    buf_.append(ptr, n); //ptr不能装入一个空的buf
-    if (buf_.error() == true) {
-      return false;
+    while (the_first_clean_ > bufs_ && stop_ == false) {
+      cv_can_write_.wait(mut);
     }
+    if (stop_ == true) {
+      return;
+    }
+    auto it = other_buf_.begin();
+    for (size_type i = 1; i < the_first_clean_; ++i) {
+      ++it;
+    }
+
+    using std::swap;
+    swap(buf_, *it);
+    ++the_first_clean_;
+    buf_.append(ptr, n); 
   }
-  return true;
+  return;
 }
 
+//调用者需要保证同步
 void BufContainer::swapInBack() { 
-  std::unique_lock<std::mutex> mut(mut_);
-  if (buf_.getSize() == 0) {
-    return;
-  }
-  while (the_first_clean_ > bufs_) {
-    cv_can_write_.wait(mut);
-  }
   auto it = other_buf_.begin();
   for (size_type i = 1; i < the_first_clean_; ++i) {
     ++it;
   }
-
   using std::swap;
   swap(buf_, *it);
   ++the_first_clean_;
-  mut.unlock();
 }
 
 bool BufContainer::backEnd(std::shared_ptr<out_stream_base> out) {
-  static CharArrayType backbuf(buf_size_); 
-  std::unique_lock<std::mutex> mut(mut_);
+  bool lock_ = mut_.try_lock();
+  if (lock_ == false) {
+    return true;
+  }
+  CharArrayType backbuf(buf_size_); 
   if (the_first_clean_ <= 1 && stop_ == true) { 
+    mut_.unlock();
     return false;
   }
   if (the_first_clean_ <= 1 && stop_ == false) {
+    mut_.unlock();
     return true;
   }
 
@@ -66,19 +80,17 @@ bool BufContainer::backEnd(std::shared_ptr<out_stream_base> out) {
   other_buf_.push_back(std::move(tmp));
   std::swap(backbuf, other_buf_.back());
   --the_first_clean_;
-  mut.unlock();
+  mut_.unlock();
   cv_can_write_.notify_all();
   out->write(backbuf.getBuf(), backbuf.getSize());
-  backbuf.setZero();
   return true;
 }
 
+//需要调用者保证同步
 void BufContainer::stop() {
   if (inited() == true) {
     swapInBack();
-    mut_.lock();
     stop_ = true;
-    mut_.unlock();
   }
 }
 

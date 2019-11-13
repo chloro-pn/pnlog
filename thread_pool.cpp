@@ -18,7 +18,7 @@ void ThreadPool::each_thread() {
     lock.unlock();
     bool conti = tmp();
     if (conti == true) {
-      push_task(tmp);
+      push_task(std::move(tmp));
     }
   }
   }

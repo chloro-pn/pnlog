@@ -16,7 +16,7 @@ public:
 
 	explicit BackEnd(size_type size);
 
-	void open(size_type index, out_stream_base* out, size_type log_container_size = 12);
+	void open(size_type index, out_stream_base* out, size_type log_container_size = 6);
 
 	std::shared_ptr<out_stream_base>& out_stream(size_type index);
 
@@ -32,7 +32,6 @@ private:
 	ThreadPool pool_;
 	std::shared_ptr<out_stream_base> out_streams_[FILES];
 	BufContainer buf_containers_[FILES];
-  spin spins_[FILES];
 	std::atomic<bool> stop_;
   std::atomic<bool> abort_;
 

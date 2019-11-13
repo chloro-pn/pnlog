@@ -27,9 +27,9 @@ public:
   void stop();
 
   template<class F>
-  void push_task(const F& func) {
+  void push_task(F&& func) {
 	  mut_.lock();
-	  tasks_.push_back(func);
+	  tasks_.push_back(std::forward<F>(func));
 	  mut_.unlock();
 	  cv_.notify_one();
   }
