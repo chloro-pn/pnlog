@@ -3,13 +3,13 @@
 #include <string>
 
 template<class LastType>
-std::string piece(const LastType& last) {
-  return convert_to_string(last);
+std::string piece(LastType&& last) {
+  return convert_to_string(std::forward<LastType>(last));
 }
 
-template<class  ThisType,class... Types>
-std::string piece(const ThisType& tt, const Types&... args) {
-  std::string tmp = convert_to_string(tt);
-  tmp += piece(args...);
+template<class ThisType,class... Types>
+std::string piece(ThisType&& tt, Types&&... args) {
+  std::string tmp(convert_to_string(std::forward<ThisType>(tt)));
+  tmp.append(piece(std::forward<Types>(args)...));
   return tmp;
 }

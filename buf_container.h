@@ -22,7 +22,7 @@ private:
   bool stop_;
 
 public:
-  static constexpr size_type buf_size_ = 4096;
+  static constexpr size_type buf_size_ = 4096 * 10;
 
   BufContainer();
 

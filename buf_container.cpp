@@ -24,7 +24,6 @@ bool BufContainer::init(size_type bufs) {
   return true;
 }
 
-//最后就是解决这里，当某个线程fatal后，其他线程还在调用write函数写日志，怎么处理？
 //
 void BufContainer::write(const char* ptr, size_type n) {
   std::unique_lock<std::mutex> mut(mut_);

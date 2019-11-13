@@ -22,9 +22,11 @@ public:
 
 	BufContainer& buf_container(size_type index);
 
+  void all_flush();
+
 	void stop();
 
-  void abort();
+  void abort(const char* = nullptr);
 
 	~BackEnd();
 
@@ -33,7 +35,6 @@ private:
 	std::shared_ptr<out_stream_base> out_streams_[FILES];
 	BufContainer buf_containers_[FILES];
 	std::atomic<bool> stop_;
-  std::atomic<bool> abort_;
 
 	bool rangecheck(size_type index) const;
 };
