@@ -3,7 +3,7 @@
 
 * [pnlog的特点?](#characteristic)
 
-* [pnlog的性能](#performance)
+* [pnlog的性能？](#performance)
 
 * [pnlog下一步计划？](#next-step)
 
@@ -28,7 +28,7 @@ pnlog是一个基于c++11标准的日志记录库。
 
     pnlog将日志分级为trace、debug、error、fatal。当调用fatal记录日志后，会将内存中的日志落盘并调用std::abort()终止程序。
     
-### <span id = "performance">pnlog的性能</span>
+### <span id = "performance">pnlog的性能</span> #
 pnlog采用原子变量实现的自旋锁代替std::mutex，性能提升明显。
 测试用机：
 
