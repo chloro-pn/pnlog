@@ -3,14 +3,16 @@
 #include "type.h"
 #include <cstdio>
 
-class StdOutStream : public out_stream_base {
-public:
-  StdOutStream(FILE* f);
+namespace pnlog {
+  class StdOutStream : public out_stream_base {
+  public:
+    StdOutStream(FILE* f);
 
-  void write(const char* ptr, size_type n) override;
+    void write(const char* ptr, size_type n) override;
 
-  ~StdOutStream();
+    ~StdOutStream();
 
-private:
-  FILE* file_;
-};
+  private:
+    FILE * file_;
+  };
+}//namespace pnlog

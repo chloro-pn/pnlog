@@ -3,5 +3,9 @@
 #include "capture.h"
 #include "str_appender.h"
 
-extern BackEnd backend;
-extern CapTure capture;
+namespace pnlog {
+  extern BackEnd backend;
+  extern CapTure capture;
+}
+
+using pnlog::piece;
