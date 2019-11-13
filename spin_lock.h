@@ -16,6 +16,14 @@ public:
     lock_.store(false);
   }
 
+  bool try_lock() {
+    bool exp = false;
+    if (lock_.compare_exchange_weak(exp, true) == true) {
+      return true;
+    }
+    return false;
+  }
+
   ~spin() {
     unlock();
   }

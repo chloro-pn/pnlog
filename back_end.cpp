@@ -7,7 +7,7 @@
 static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size should >= capture buf_size!");
 
 void BackEnd::write(size_type index, const char* ptr, size_type n) {
-  std::unique_lock<std::mutex> mut(buf_container(index).mut_);
+  std::unique_lock<typename BufContainer::lock_type> mut(buf_container(index).mut_);
   if (index == 0 || index == 1) {
     out_stream(index)->write(ptr, n);
     mut.unlock();
@@ -57,20 +57,26 @@ BufContainer& BackEnd::buf_container(size_type index) {
 }
 
 void BackEnd::all_flush() {
-  std::unique_lock<std::mutex> locks[FILES];
+  std::unique_lock<typename BufContainer::lock_type> locks[FILES];
   for (size_type i = 0; i < FILES; ++i) {
-    std::unique_lock<std::mutex> tmp(buf_containers_[i].mut_);
-    tmp.swap(locks[i]);
-  }
-  for (size_type i = 2; i < FILES; ++i) {
     if (buf_containers_[i].inited() == false) {
       continue;
-    }//虽然locks[i]会被unlock，但也许线程池被其他backend阻塞了，因为这里锁住了所有的lock。
+    }
+    std::unique_lock<typename BufContainer::lock_type> tmp(buf_containers_[i].mut_);
+    tmp.swap(locks[i]);
+  }
+  for (size_type i = 0; i < FILES; ++i) {
+    if (buf_containers_[i].inited() == false) {
+      continue;
+    }
     while (buf_containers_[i].the_first_clean_ > buf_containers_[i].bufs_) {
       buf_containers_[i].cv_can_write_.wait(locks[i]);
     }
   }
   for (size_type i = 0; i < FILES; ++i) {
+    if (buf_containers_[i].inited() == false) {
+      continue;
+    }
     buf_containers_[i].stop();
     locks[i].unlock();
     //buf_containers_[i].cv_can_write_.notify_all(); // 不再唤醒了

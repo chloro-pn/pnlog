@@ -26,7 +26,7 @@ bool BufContainer::init(size_type bufs) {
 
 //
 void BufContainer::write(const char* ptr, size_type n) {
-  std::unique_lock<std::mutex> mut(mut_);
+  std::unique_lock<lock_type> mut(mut_);
   buf_.append(ptr, n);
   if (buf_.error() == true) {
     while (the_first_clean_ > bufs_ && stop_ == false) {

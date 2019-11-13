@@ -10,6 +10,7 @@
 int main()
 {
   capture.setLevel(CapTure::Level::PN_TRACE);
+  
   for (int i = 2; i < 8; ++i) {
     backend.open(i, new FileOutStream(piece("e://test", i, ".txt")));
   }
