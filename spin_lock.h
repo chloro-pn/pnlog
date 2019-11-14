@@ -17,6 +17,7 @@ namespace pnlog {
       lock_.store(false);
     }
 
+    //‘ –Ì–ÈºŸ ß∞‹
     bool try_lock() {
       bool exp = false;
       if (lock_.compare_exchange_weak(exp, true) == true) {

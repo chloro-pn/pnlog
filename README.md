@@ -1,13 +1,13 @@
 ﻿# pnlog
 * [pnlog是什么？](#what-is-pnlog)
 
-* [pnlog的特点?](#characteristic)
+* [pnlog的特点？](#characteristic)
 
 * [pnlog的性能？](#performance)
 
 * [pnlog下一步计划？](#next-step)
 
-* [如何使用pnlog?](#how-to-use-pnlog)
+* [如何使用pnlog？](#how-to-use-pnlog)
 ***
 ### <span id = "what-is-pnlog"> pnlog是什么</span> #
 pnlog是一个基于c++11标准的日志记录库。
@@ -22,11 +22,16 @@ pnlog是一个基于c++11标准的日志记录库。
 
 * 可打开多个日志文件自由选择写入
 
-    在记录之前可以打开多个日志文件，每个文件占有一索引号，日志记录时可以根据索引号选择对应的日志文件记录。pnlog在开始前默认将0号索引分配给stdout，1号索引分配给stderr。
+    在记录之前可以打开多个日志文件，每个文件占有一索引号，日志记录时可以根据索引号选择对应的日志文件记录。pnlog在开始前默认将0号索引分配给stdout，1号索引分配给stderr，目前支持包括0号和1号在内的最多128个文件索引。
     
 * 日志分级
 
     pnlog将日志分级为trace、debug、error、fatal。当调用fatal记录日志后，会将内存中的日志落盘并调用std::abort()终止程序。
+
+* 时间记录
+
+    pnlog不支持每条日志都记录当前时刻，每个日志文件被打开后第一条日志将会写入本地日历时间，pnlog提供time_stamp函数和time_record函数，可用来记录两函数调用之间的间隔时间。一次调用time_stamp之后可以多次调用time_record函数，每次返回的时间间隔都是当前时刻到调用time_stamp函数时刻的时间间隔，随时可以调用time_stamp刷新时刻开始点。该机制是线程安全并独立的，可以记录不同线程各自的间隔时间。
+
     
 ### <span id = "performance">pnlog的性能</span> #
 pnlog采用原子变量实现的自旋锁代替std::mutex，性能提升明显。
@@ -51,13 +56,10 @@ win10 | Intel(R) Core(TM) i5-7500 CPU 3.40GHz 4核 | WDC WD20EZRZ-22Z5HB0 5400�
 * 跨平台
 
     由于文件操作时使用的是*_s系列函数，故目前只支持windows操作系统。
+
 * 自定义日志格式
     
     目前并不支持自定义格式。
-    
-* 日志时间记录
-    
-    目前日志记录可以有选择的记录文件路径和行数，但不支持记录当前时间。
     
 * 自定义类的日志记录机制
     
@@ -66,15 +68,42 @@ win10 | Intel(R) Core(TM) i5-7500 CPU 3.40GHz 4核 | WDC WD20EZRZ-22Z5HB0 5400�
 ### <span id = "how-to-use-pnlog"> 如何使用pnlog</span> #
 pnlog库提供两个全局对象：capture和backend，capture对象用来捕获并记录日志，backend对象用来进行日志文件相关的操作。
 
-第一步：选择一个索引号并打开日志文件。
+example:
 
-<code> backend.open(2, new FileOutStream("e://log.txt")); </code>
+<code>
+using pnlog::CapTure;
+using pnlog::capture;
+using pnlog::backend;
 
-第二步：记录日志（可以选择记录文件名称和行号的重载函数）
+int main()
+{
+  capture.setLevel(CapTure::Level::PN_TRACE);
+  for (int i = 2; i < 20; ++i) {
+    backend.open(i, new pnlog::FileOutStream(piece("e://test",i,".txt")));
+  }
 
-<code>	capture.log_debug(2, piece("hello world !my number is ", 23));</code>
+  char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
 
-<code>  capture.log_error(1, \_\_LINE\_\_,\_\_FILE\_\_,piece("there is something wrong!"));</code>
+  std::vector<std::thread> ths;
+  for (int i = 0; i < 3; ++i) {
+    ths.emplace_back([&,i]()->void{
+      capture.time_stamp(0, piece("thread ", i, " loop begin."));
+      for (int k = 0; k < 1000000; ++k) {
+        capture.log_debug(rand() % 18 + 2, piece(buf, " ", k,":",i));
+        if (k % 100000 == 0) {
+          capture.time_record(piece("thread ", i, " k == ", k));
+        }
+      }
+      capture.time_record(piece("thread ", i, " loop over."));
+    });
+  }
+  for (int i = 0; i < 3; ++i) {
+    ths.at(i).join();
+  }
+  system("pause");
+  return 0;
+}
+</code>
 
 当backend对象析构时会自动将内存中的日志落盘，不再需要显示的调用stop函数。
 

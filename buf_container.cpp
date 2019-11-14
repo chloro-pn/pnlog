@@ -25,7 +25,6 @@ namespace pnlog {
     return true;
   }
 
-  //
   void BufContainer::write(const char* ptr, size_type n) {
     std::unique_lock<lock_type> mut(mut_);
     buf_.append(ptr, n);
@@ -36,14 +35,7 @@ namespace pnlog {
       if (stop_ == true) {
         return;
       }
-      auto it = other_buf_.begin();
-      for (size_type i = 1; i < the_first_clean_; ++i) {
-        ++it;
-      }
-
-      using std::swap;
-      swap(buf_, *it);
-      ++the_first_clean_;
+      swapInBack();
       buf_.append(ptr, n);
     }
     return;

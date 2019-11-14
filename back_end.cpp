@@ -3,6 +3,8 @@
 #include "std_out_stream.h"
 #include "platform.h"
 #include <iostream>
+#include <ctime>
+#include <cstring>
 
 namespace pnlog {
 
@@ -41,11 +43,19 @@ namespace pnlog {
     }
 
     out_stream(index) = std::shared_ptr<out_stream_base>(out);
-    buf_container(index).init(log_container_size);
-
+    bool init_ = buf_container(index).init(log_container_size);
+    if (init_ == false) {
+      pf::fprintf(stderr, "buf_container %d init error, container size : %d", index, log_container_size);
+      abort();
+    }
     pool_.push_task([this, index]()->bool {
       return buf_container(index).backEnd(out_stream(index));
     });
+    //每个日志打开后第一条日志是当前时刻的日期。
+    time_t current_time = time(nullptr);
+    char buf[128];
+    ctime_s(buf, sizeof(buf), &current_time);
+    write(index, buf, strlen(buf));
   }
 
   inline
@@ -81,7 +91,7 @@ namespace pnlog {
       }
       buf_containers_[i].stop();
       locks[i].unlock();
-      //buf_containers_[i].cv_can_write_.notify_all(); // 不再唤醒了
+      buf_containers_[i].cv_can_write_.notify_all();
     }
   }
 

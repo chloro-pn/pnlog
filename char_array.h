@@ -13,7 +13,7 @@ namespace pnlog {
     bool error_;
 
   public:
-    explicit CharArray(size_type size = 1024) :buf_(nullptr), size_(size), end_(0), error_(false) {
+    explicit CharArray(size_type size) :buf_(nullptr), size_(size), end_(0), error_(false) {
       try {
         buf_ = new char[static_cast<unsigned int>(size)](); //÷µ≥ı ºªØ
       }
