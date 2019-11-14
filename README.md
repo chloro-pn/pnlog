@@ -70,7 +70,7 @@ pnlog库提供两个全局对象：capture和backend，capture对象用来捕获
 
 example:
 
-<code>
+```
 using pnlog::CapTure;
 using pnlog::capture;
 using pnlog::backend;
@@ -103,7 +103,7 @@ int main()
   system("pause");
   return 0;
 }
-</code>
+```
 
 当backend对象析构时会自动将内存中的日志落盘，不再需要显示的调用stop函数。
 
