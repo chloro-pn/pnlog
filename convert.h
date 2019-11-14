@@ -20,4 +20,9 @@ namespace pnlog {
   std::string convert_to_string(const char_type& ptr);
 
   std::string convert_to_string(const char* ptr);
+
+  template<size_t n>
+  std::string convert_to_string(const char(&ref)[n]) {
+    return std::string(ref);
+  }
 }//namespace pnlog
