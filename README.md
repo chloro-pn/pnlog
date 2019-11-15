@@ -35,6 +35,7 @@ pnlog是一个基于c++11标准的日志记录库。
 
     
 * 支持同步、异步模式
+
     pnlog支持用户选择同步或者异步模式打开日志文件。调用open函数是异步模式打开，而调用open_syn是同步模式打开。stdout、stderr设置为同步模式打开。
 
 ### <span id = "performance">pnlog的性能</span> #
