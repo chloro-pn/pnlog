@@ -12,6 +12,7 @@ namespace pnlog {
   class BackEnd {
     friend class CapTure;
   public:
+
     static constexpr size_t FILES = 128;
 
     static std::shared_ptr<BackEnd> get_instance();
@@ -22,6 +23,8 @@ namespace pnlog {
     BackEnd& operator=(BackEnd&&) = delete;
 
     void open(size_type index, out_stream_base* out, size_type log_container_size = 6);
+
+    void open_syn(size_type index, out_stream_base* out);
 
     void stop();
 

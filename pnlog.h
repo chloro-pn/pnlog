@@ -2,6 +2,7 @@
 #include "back_end.h"
 #include "capture.h"
 #include "str_appender.h"
+#include "file_out_stream.h"
 #include <memory>
 
 namespace pnlog {

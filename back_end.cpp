@@ -16,13 +16,13 @@ namespace pnlog {
 
   void BackEnd::write(size_type index, const char* ptr, size_type n) {
     std::unique_lock<typename BufContainer::lock_type> mut(buf_container(index).mut_);
-    if (index == 0 || index == 1) {
-      out_stream(index)->write(ptr, n);
-      mut.unlock();
-    }
-    else if (out_stream(index) == nullptr) {
+    if (out_stream(index) == nullptr) {
       mut.unlock();
       abort("write non - opened file.");
+    }
+    else if (buf_container(index).inited() == false) {
+      out_stream(index)->write(ptr, n);
+      mut.unlock();
     }
     else {
       mut.unlock();
@@ -34,8 +34,8 @@ namespace pnlog {
     for (size_type i = 0; i < FILES; ++i) {
       out_streams_[i] = nullptr;
     }
-    out_stream(0).reset(new StdOutStream(stdout));
-    out_stream(1).reset(new StdOutStream(stderr));
+    open_syn(0, new StdOutStream(stdout));
+    open_syn(1, new StdOutStream(stderr));
     pool_.start();
   }
 
@@ -59,11 +59,27 @@ namespace pnlog {
     time_t current_time = time(nullptr);
     char buf[128];
     ctime_s(buf, sizeof(buf), &current_time);
-    write(index, buf, strlen(buf));
+    write(index, piece("index : ", index, ", ", buf).c_str(), strlen(buf));
+  }
+
+  void BackEnd::open_syn(size_type index, out_stream_base* out) {
+    bool range = rangecheck(index);
+    if (out_stream(index) != nullptr || range == false) {
+      pf::fprintf(stderr, "register opened file or out of range : %d", index);
+      abort();
+    }
+
+    out_stream(index) = std::shared_ptr<out_stream_base>(out);
+
+    //每个日志打开后第一条日志是当前时刻的日期。
+    time_t current_time = time(nullptr);
+    char buf[128];
+    ctime_s(buf, sizeof(buf), &current_time);
+    write(index,piece("index : ",index,", ",buf).c_str(), strlen(buf));
   }
 
   inline
-    std::shared_ptr<out_stream_base>& BackEnd::out_stream(size_type index) {
+  std::shared_ptr<out_stream_base>& BackEnd::out_stream(size_type index) {
     return out_streams_[index];
   }
 
