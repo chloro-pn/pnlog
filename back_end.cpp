@@ -10,7 +10,7 @@ namespace pnlog {
   static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size should >= capture buf_size!");
 
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
-    static std::shared_ptr<BackEnd> backend( new BackEnd(2));
+    static std::shared_ptr<BackEnd> backend( new BackEnd(1));
     return backend;
   }
 
