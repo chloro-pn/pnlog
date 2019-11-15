@@ -55,6 +55,7 @@ namespace pnlog {
     pool_.push_task([this, index]()->bool {
       return buf_container(index).backEnd(out_stream(index));
     });
+
     //每个日志打开后第一条日志是当前时刻的日期。
     time_t current_time = time(nullptr);
     char buf[128];

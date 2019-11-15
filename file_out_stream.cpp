@@ -4,10 +4,7 @@
 
 namespace pnlog {
   FileOutStream::FileOutStream(std::string filename) :file_(nullptr) {
-    if (fopen_s(&file_, filename.c_str(), "w") != 0) {
-      pf::fprintf(stderr, "file open error!");
-      ::abort();
-    }
+    pf::fopen(&file_, filename.c_str(), "w");
   }
 
   void FileOutStream::write(const char* ptr, size_type n) {

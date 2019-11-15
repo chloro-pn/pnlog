@@ -14,6 +14,7 @@ namespace pnlog {
     static void fopen(FILE** stream, const char* str, const char* mode) {
       if (fopen_s(stream, str, mode) != 0) {
         ::fprintf_s(stderr, "file open error!");
+        ::abort();
       }
     }
 
