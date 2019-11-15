@@ -5,15 +5,9 @@
 #include "convert.h"
 #include "spin_lock.h"
 #include "str_appender.h"
-#include <array>
-#include <iostream>
-#include <functional>
-#include <thread>
 #include <list>
-#include <condition_variable>
-#include <mutex>
-#include <array>
 #include <ctime>
+#include <memory>
 
 namespace pnlog {
   class CapTure {
@@ -21,7 +15,7 @@ namespace pnlog {
     enum class Level { PN_TRACE, PN_DEBUG, PN_ERROR, PN_FATAL };
 
   private:
-    BackEnd & back_;
+    std::shared_ptr<BackEnd> back_;
     size_type index_;
     static Level default_level_;
 
@@ -29,11 +23,16 @@ namespace pnlog {
 
     static constexpr size_type buf_size_ = 4096;
 
+    static std::shared_ptr<CapTure> get_instance(std::shared_ptr<BackEnd> back);
+
+    CapTure(const CapTure&) = delete;
+    CapTure(CapTure&&) = delete;
+    CapTure& operator=(const CapTure&) = delete;
+    CapTure& operator=(CapTure&&) = delete;
+
     static void setLevel(Level l);
 
     static Level getLevel();
-
-    CapTure(BackEnd& b);
 
     void log_trace(size_type index, size_type line, const char* file, const std::string& str);
 
@@ -70,6 +69,8 @@ namespace pnlog {
     }
 
   private:
+
+    CapTure(std::shared_ptr<BackEnd> b);
 
     void log(size_type index, Level level, size_type line, const char* file, const std::string& str);
 

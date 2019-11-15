@@ -2,13 +2,17 @@
 #include "capture.h"
 #include "std_out_stream.h"
 #include "platform.h"
-#include <iostream>
 #include <ctime>
 #include <cstring>
 
 namespace pnlog {
 
   static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size should >= capture buf_size!");
+
+  std::shared_ptr<BackEnd> BackEnd::get_instance() {
+    static std::shared_ptr<BackEnd> backend( new BackEnd(1));
+    return backend;
+  }
 
   void BackEnd::write(size_type index, const char* ptr, size_type n) {
     std::unique_lock<typename BufContainer::lock_type> mut(buf_container(index).mut_);

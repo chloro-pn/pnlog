@@ -7,7 +7,7 @@ namespace pnlog {
 
   void ThreadPool::each_thread() {
     while (true) {
-      std::unique_lock<std::mutex> lock(mut_);
+      std::unique_lock<spin> lock(mut_);
       while (tasks_.empty() == true && stop_ == false) {
         cv_.wait(lock);
       }

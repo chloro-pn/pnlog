@@ -4,8 +4,8 @@
 #include <functional>
 #include <list>
 #include <condition_variable>
-#include <mutex>
 #include "type.h"
+#include "spin_lock.h"
 
 namespace pnlog {
   class ThreadPool {
@@ -14,8 +14,8 @@ namespace pnlog {
     using task_type = std::function<bool()>;
     std::list<task_type> tasks_;
     size_type th_counts_;
-    std::condition_variable cv_;
-    std::mutex mut_;
+    std::condition_variable_any cv_;
+    spin mut_;
     bool stop_;
 
   public:

@@ -1,7 +1,6 @@
 #include "buf_container.h"
 #include "out_stream_base.h"
 #include "platform.h"
-#include <Windows.h>
 
 namespace pnlog {
   BufContainer::BufContainer() :the_first_clean_(1),

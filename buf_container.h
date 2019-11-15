@@ -1,13 +1,10 @@
 #pragma once
-#include <list>
-#include <mutex>
-#include <condition_variable>
-#include <atomic>
-#include <iostream>
 #include "char_array.h"
 #include "type.h"
 #include "out_stream_base.h"
 #include "spin_lock.h"
+#include <list>
+#include <condition_variable>
 
 namespace pnlog {
   class BufContainer {

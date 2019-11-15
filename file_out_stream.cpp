@@ -1,6 +1,5 @@
 #include "file_out_stream.h"
 #include "platform.h"
-#include <iostream>
 
 namespace pnlog {
   FileOutStream::FileOutStream(std::string filename) :file_(nullptr) {
