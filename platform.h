@@ -34,6 +34,7 @@ namespace pnlog {
       ::fclose(stream);
     }
   };
+
 #ifdef _WIN32
 using pf = platform<win>;
 #endif

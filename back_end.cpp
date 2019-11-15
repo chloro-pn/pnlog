@@ -84,7 +84,7 @@ namespace pnlog {
   }
 
   inline
-    BufContainer& BackEnd::buf_container(size_type index) {
+  BufContainer& BackEnd::buf_container(size_type index) {
     return buf_containers_[index];
   }
 
