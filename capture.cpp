@@ -3,6 +3,8 @@
 
 namespace pnlog {
 
+  constexpr size_type CapTure::buf_size_;
+
   std::shared_ptr<CapTure> CapTure::get_instance(std::shared_ptr<BackEnd> back) {
     static std::shared_ptr<CapTure> capture(new CapTure(back));
     return capture;

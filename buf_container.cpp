@@ -2,6 +2,9 @@
 #include "out_stream_base.h"
 
 namespace pnlog {
+
+  constexpr size_type BufContainer::buf_size_;
+
   BufContainer::BufContainer() :the_first_clean_(1),
     inited_(false),
     bufs_(-1),
