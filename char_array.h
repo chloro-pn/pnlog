@@ -50,7 +50,7 @@ namespace pnlog {
         error_ = true;
         return;
       }
-      memcpy_s(&buf_[end_], static_cast<rsize_t>(capacity), ptr, static_cast<rsize_t>(nbyte));
+      memcpy(&buf_[end_], ptr, static_cast<size_t>(nbyte));
       end_ += nbyte;
       buf_[end_] = '\0';
       return;
