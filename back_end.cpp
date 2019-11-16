@@ -59,8 +59,9 @@ namespace pnlog {
     //每个日志打开后第一条日志是当前时刻的日期。
     std::time_t current_time = std::time(nullptr);
     char buf[128];
-    std::strftime(buf, sizeof(buf), "%c%n", std::localtime(&current_time));
-    write(index, piece("index : ", index, ", ", buf).c_str(), strlen(buf));
+    std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
+    std::string result = piece("index : ", index, ", ", buf, "\n");
+    write(index, result.c_str(), result.size());
   }
 
   void BackEnd::open_syn(size_type index, out_stream_base* out) {
@@ -75,8 +76,9 @@ namespace pnlog {
     //每个日志打开后第一条日志是当前时刻的日期。
     std::time_t current_time = std::time(nullptr);
     char buf[128];
-    std::strftime(buf, sizeof(buf), "%c%n", std::localtime(&current_time));
-    write(index, piece("index : ", index, ", ", buf).c_str(), strlen(buf));
+    std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
+    std::string result = piece("index : ", index, ", ", buf, "\n");
+    write(index, result.c_str(), result.size());
   }
 
   inline
