@@ -14,12 +14,7 @@ namespace pnlog {
 
   public:
     explicit CharArray(size_type size) :buf_(nullptr), size_(size), end_(0), error_(false) {
-      try {
-        buf_ = new char[static_cast<unsigned int>(size)](); //值初始化
-      }
-      catch (const std::exception& e) {
-        printf_s(e.what());
-      }
+      buf_ = new char[static_cast<unsigned int>(size)](); //值初始化
     }
 
     ~CharArray() {
