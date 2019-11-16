@@ -1,9 +1,9 @@
 #include "back_end.h"
 #include "capture.h"
 #include "std_out_stream.h"
-#include "platform.h"
 #include <ctime>
 #include <cstring>
+#include <locale>
 
 namespace pnlog {
 
@@ -42,14 +42,14 @@ namespace pnlog {
   void BackEnd::open(size_type index, out_stream_base* out, size_type log_container_size) {
     bool range = rangecheck(index);
     if (out_stream(index) != nullptr || range == false) {
-      pf::fprintf(stderr, "register opened file or out of range : %d", index);
+      fprintf(stderr, "register opened file or out of range : %d", static_cast<int>(index));
       abort();
     }
 
     out_stream(index) = std::shared_ptr<out_stream_base>(out);
     bool init_ = buf_container(index).init(log_container_size);
     if (init_ == false) {
-      pf::fprintf(stderr, "buf_container %d init error, container size : %d", index, log_container_size);
+      fprintf(stderr, "buf_container %d init error, container size : %d", static_cast<int>(index), static_cast<int>(log_container_size));
       abort();
     }
     pool_.push_task([this, index]()->bool {
@@ -57,26 +57,26 @@ namespace pnlog {
     });
 
     //每个日志打开后第一条日志是当前时刻的日期。
-    time_t current_time = time(nullptr);
+    std::time_t current_time = std::time(nullptr);
     char buf[128];
-    ctime_s(buf, sizeof(buf), &current_time);
+    std::strftime(buf, sizeof(buf), "%c%n", std::localtime(&current_time));
     write(index, piece("index : ", index, ", ", buf).c_str(), strlen(buf));
   }
 
   void BackEnd::open_syn(size_type index, out_stream_base* out) {
     bool range = rangecheck(index);
     if (out_stream(index) != nullptr || range == false) {
-      pf::fprintf(stderr, "register opened file or out of range : %d", index);
+      fprintf(stderr, "register opened file or out of range : %d", static_cast<int>(index));
       abort();
     }
 
     out_stream(index) = std::shared_ptr<out_stream_base>(out);
 
     //每个日志打开后第一条日志是当前时刻的日期。
-    time_t current_time = time(nullptr);
+    std::time_t current_time = std::time(nullptr);
     char buf[128];
-    ctime_s(buf, sizeof(buf), &current_time);
-    write(index,piece("index : ",index,", ",buf).c_str(), strlen(buf));
+    std::strftime(buf, sizeof(buf), "%c%n", std::localtime(&current_time));
+    write(index, piece("index : ", index, ", ", buf).c_str(), strlen(buf));
   }
 
   inline
@@ -130,7 +130,7 @@ namespace pnlog {
       all_flush();
       pool_.stop();
       if (error_message != nullptr) {
-        pf::fprintf(stderr, error_message);
+        fprintf(stderr, error_message);
       }
       std::abort();
     }

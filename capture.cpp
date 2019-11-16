@@ -1,5 +1,4 @@
 #include "capture.h"
-#include "platform.h"
 #include "back_end.h"
 
 namespace pnlog {
