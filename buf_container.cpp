@@ -6,10 +6,9 @@ namespace pnlog {
   constexpr size_type BufContainer::buf_size_;
 
   BufContainer::BufContainer() :the_first_clean_(1),
-    inited_(false),
     bufs_(-1),
-    stop_(false),
-    buf_(buf_size_) {
+    buf_(buf_size_),
+    state_(state::stop) {
 
   }
 
@@ -23,8 +22,7 @@ namespace pnlog {
       other_buf_.emplace_back(buf_size_);
     }
     bufs_ = bufs;
-    inited_ = true;
-    stop_ = false;
+    state_ = state::running;
     return true;
   }
 
@@ -32,10 +30,10 @@ namespace pnlog {
     std::unique_lock<lock_type> mut(mut_);
     buf_.append(ptr, n);
     if (buf_.error() == true) {
-      while (the_first_clean_ > bufs_ && stop_ == false) {
+      while (the_first_clean_ > bufs_ && running() == true) {
         cv_can_write_.wait(mut);
       }
-      if (stop_ == true) {
+      if (running() == false) {
         return;
       }
       swapInBack();
@@ -61,11 +59,11 @@ namespace pnlog {
       return true;
     }
     CharArrayType backbuf(buf_size_);
-    if (the_first_clean_ <= 1 && stop_ == true) {
+    if (the_first_clean_ <= 1 && running() == false) {
       mut_.unlock();
       return false;
     }
-    if (the_first_clean_ <= 1 && stop_ == false) {
+    if (the_first_clean_ <= 1 && running() == true) {
       mut_.unlock();
       return true;
     }
@@ -83,13 +81,14 @@ namespace pnlog {
 
   //需要调用者保证同步
   void BufContainer::stop() {
-    if (inited() == true) {
-      stop_ = true;
+    if (running() == true) {
+      state_ = state::stop;
     }
   }
 
   void BufContainer::clear() {
     other_buf_.clear();
+    state_ = state::stop;
   }
 
   BufContainer::~BufContainer() {

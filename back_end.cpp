@@ -20,7 +20,7 @@ namespace pnlog {
       mut.unlock();
       abort("write non - opened file.");
     }
-    else if (buf_container(index).inited() == false) {
+    else if (buf_container(index).running() == false) {
       out_stream(index)->write(ptr, n);
       mut.unlock();
     }
@@ -105,7 +105,7 @@ namespace pnlog {
 
   void BackEnd::all_stop() {
     for (size_type i = 0; i < FILES; ++i) {
-      if (buf_containers_[i].inited() == false) {
+      if (buf_containers_[i].running() == false) {
         continue;
       }
       std::unique_lock<typename BufContainer::lock_type> tmp(buf_containers_[i].mut_);
@@ -125,7 +125,7 @@ namespace pnlog {
     if (out_streams_[index] == nullptr) {
       return;
     }
-    if (buf_containers_[index].inited() == false) {
+    if (buf_containers_[index].running() == false) {
       //非缓冲文件，直接调用close。
       out_streams_[index]->close();
       out_streams_[index].reset();

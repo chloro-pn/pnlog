@@ -18,8 +18,8 @@ namespace pnlog {
     size_type the_first_clean_;
     std::condition_variable_any cv_can_write_;
     lock_type mut_;
-    bool inited_;
-    bool stop_;
+    enum class state { running, stop };
+    state state_;
 
   public:
     static constexpr size_type buf_size_ = 4096;
@@ -29,8 +29,8 @@ namespace pnlog {
     bool init(size_type bufs);
 
     inline
-      bool inited() const {
-      return inited_;
+      bool running() const {
+      return state_ == state::running;
     }
 
     void write(const char* ptr, size_type n);
