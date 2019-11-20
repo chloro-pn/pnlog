@@ -8,11 +8,14 @@ namespace pnlog {
   class FileOutStream : public out_stream_base {
   private:
     FILE * file_;
+    bool closed_;
 
   public:
-    FileOutStream(std::string filename);
+    explicit FileOutStream(std::string filename);
 
     void write(const char* ptr, size_type n) override;
+
+    void close() override;
 
     ~FileOutStream();
   };

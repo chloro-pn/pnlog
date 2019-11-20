@@ -10,6 +10,9 @@ namespace pnlog {
     fprintf(file_, ptr);
   }
 
+  void StdOutStream::close() {
+
+  }
 
   StdOutStream::~StdOutStream() {
 

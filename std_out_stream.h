@@ -6,9 +6,11 @@
 namespace pnlog {
   class StdOutStream : public out_stream_base {
   public:
-    StdOutStream(FILE* f);
+    explicit StdOutStream(FILE* f);
 
     void write(const char* ptr, size_type n) override;
+
+    void close() override;
 
     ~StdOutStream();
 

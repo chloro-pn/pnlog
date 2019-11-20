@@ -2,7 +2,7 @@
 #include <cstdlib>
 
 namespace pnlog {
-  FileOutStream::FileOutStream(std::string filename) :file_(nullptr) {
+  FileOutStream::FileOutStream(std::string filename) :file_(nullptr),closed_(false) {
     file_ = fopen( filename.c_str(), "w");
     if (file_ == nullptr) {
       fprintf(stderr, "file open error!");
@@ -19,7 +19,14 @@ namespace pnlog {
     fflush(file_);
   }
 
-  FileOutStream::~FileOutStream() {
+  void FileOutStream::close() {
+    if (closed_ == false) {
+      fclose(file_);
+      closed_ = true;
+    }
+  }
 
+  FileOutStream::~FileOutStream() {
+    close();
   }
 }//namesapce pnlog

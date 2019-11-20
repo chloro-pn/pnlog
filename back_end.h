@@ -7,6 +7,7 @@
 #include "spin_lock.h"
 #include <memory>
 #include <atomic>
+#include <string>
 
 namespace pnlog {
   class BackEnd {
@@ -25,6 +26,8 @@ namespace pnlog {
     void open(size_type index, out_stream_base* out, size_type log_container_size = 6);
 
     void open_syn(size_type index, out_stream_base* out);
+
+    void close(size_type index);
 
     void stop();
 
@@ -48,6 +51,6 @@ namespace pnlog {
 
     BufContainer& buf_container(size_type index);
 
-    void all_flush();
+    void all_stop();
   };
 }//namespace pnlog

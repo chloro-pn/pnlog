@@ -17,12 +17,14 @@ namespace pnlog {
     if (bufs < 1) {
       return false;
     }
+    the_first_clean_ = 1;
     //other_buf_.resize(static_cast<unsigned int>(bufs));
     for (size_type i = 0; i < bufs; ++i) {
       other_buf_.emplace_back(buf_size_);
     }
     bufs_ = bufs;
     inited_ = true;
+    stop_ = false;
     return true;
   }
 
@@ -82,9 +84,12 @@ namespace pnlog {
   //需要调用者保证同步
   void BufContainer::stop() {
     if (inited() == true) {
-      swapInBack();
       stop_ = true;
     }
+  }
+
+  void BufContainer::clear() {
+    other_buf_.clear();
   }
 
   BufContainer::~BufContainer() {

@@ -41,6 +41,9 @@ namespace pnlog {
 
     void stop();
 
+    //should be called after out_stream()->close() called.
+    void clear();
+
     ~BufContainer();
   };
 }//namespace pnlog
