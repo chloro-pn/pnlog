@@ -1,6 +1,7 @@
 #include "back_end.h"
 #include "capture.h"
 #include "std_out_stream.h"
+#include "str_appender.h"
 #include <ctime>
 #include <cstring>
 #include <locale>
@@ -132,9 +133,7 @@ namespace pnlog {
       return;
     }
     else {
-      //首先等待在可写上
       std::unique_lock<typename BufContainer::lock_type> lock(buf_containers_[index].mut_);
-      //由于可写被唤醒，将当前块swap进后台并设置stop_为true。
       buf_containers_[index].stop();
       lock.unlock();
       //唤醒由于关闭文件而等待的write线程，让其被唤醒。

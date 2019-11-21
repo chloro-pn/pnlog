@@ -1,13 +1,10 @@
 #pragma once
-#include "file_out_stream.h"
 #include "type.h"
 #include "buf_container.h"
 #include "thread_pool.h"
 #include "out_stream_base.h"
-#include "spin_lock.h"
 #include <memory>
 #include <atomic>
-#include <string>
 
 namespace pnlog {
   class BackEnd {

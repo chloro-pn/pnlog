@@ -1,5 +1,8 @@
 #include "capture.h"
 #include "back_end.h"
+#include "convert.h"
+#include <string>
+
 
 namespace pnlog {
 

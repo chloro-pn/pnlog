@@ -24,17 +24,17 @@ int main()
   }
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 5; ++i) {
     ths.emplace_back([&, i]()->void {
-      capture->time_stamp(0, piece("thread ", 2, " loop begin."));
+      capture->time_stamp(0, piece("thread ", i+2, " loop begin."));
       for (int k = 0; k < 1000000; ++k) {
         capture->log_trace(i + 2, piece(buf, ":", i + 2, ":", k));
       }
-      capture->time_record(piece("thread ", 2, " loop over."));
+      capture->time_record(piece("thread ", i+2, " loop over."));
       //capture->log_fatal(0, piece(i + 2, " killed the process."));
     });
   }
-  for (int i = 0; i < 3; ++i) {
+  for (int i = 0; i < 5; ++i) {
     ths.at(i).join();
   }
   backend->close(2);

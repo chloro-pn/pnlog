@@ -1,11 +1,7 @@
 #pragma once
-#include "char_array.h"
-#include "back_end.h"
 #include "type.h"
-#include "convert.h"
-#include "spin_lock.h"
+#include "back_end.h"
 #include "str_appender.h"
-#include <list>
 #include <ctime>
 #include <memory>
 
