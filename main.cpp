@@ -26,7 +26,7 @@ int main()
   std::vector<std::thread> ths;
   for (int i = 0; i < 5; ++i) {
     ths.emplace_back([&, i]()->void {
-      capture->time_stamp(0, piece("thread ", i+2, " loop begin."));
+      capture->time_stamp(0, piece("thread ", i + 2, " loop begin."));
       for (int k = 0; k < 1000000; ++k) {
         capture->log_trace(i + 2, piece(buf, ":", i + 2, ":", k));
       }
