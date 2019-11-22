@@ -21,13 +21,13 @@ int main()
 {
   capture->setLevel(CapTure::Level::PN_TRACE);
   for (int i = 2; i < 10; ++i) {
-    backend->open(i, new pnlog::FileOutStream(piece("e://test", i, ".txt")));
+    backend->open(i, new pnlog::FileOutStream(piece("d://test", i, ".txt")));
   }
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;
   for (int i = 0; i < 4; ++i) {
     ths.emplace_back([&, i]()->void {
-      capture->time_stamp(0, piece("thread ", i + 2, " loop begin."));
+      capture->time_stamp( 0, piece("thread ", i+2, " loop begin."));
       for (int k = 0; k < 1000000; ++k) {
         capture->log_trace(i + 2, piece(buf, ":", i + 2, ":", k));
       }
@@ -39,6 +39,7 @@ int main()
     ths.at(i).join();
   }
   backend->close(2);
+
   system("pause");
   return 0;
 }

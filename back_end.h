@@ -8,10 +8,13 @@
 #include <atomic>
 #include <vector>
 #include <condition_variable>
+#include <mutex>
 
 namespace pnlog {
   class BackEnd {
     friend class CapTure;
+
+    using lock_type = std::mutex;
   public:
 
     static std::shared_ptr<BackEnd> get_instance();
@@ -39,8 +42,8 @@ namespace pnlog {
     ThreadPool pool_;
     std::vector<std::shared_ptr<out_stream_base>> out_streams_;
     std::vector<std::shared_ptr<CharArray>> bufs_;
-    std::vector<std::shared_ptr<spin>> spins_;
-    std::vector<std::shared_ptr<std::condition_variable_any>> cv_can_write_;
+    std::vector<std::shared_ptr<lock_type>> spins_;
+    std::vector<std::shared_ptr<std::condition_variable>> cv_can_write_;
     std::vector<bool> stops_;
 
     size_type size_of_streams_and_bufs_;
