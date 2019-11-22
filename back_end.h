@@ -42,6 +42,7 @@ namespace pnlog {
     std::vector<std::shared_ptr<spin>> spins_;
     std::vector<std::shared_ptr<std::condition_variable_any>> cv_can_write_;
     std::vector<bool> stops_;
+
     size_type size_of_streams_and_bufs_;
     std::atomic<bool> stop_;
 

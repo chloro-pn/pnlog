@@ -32,7 +32,7 @@ int main()
         capture->log_trace(i + 2, piece(buf, ":", i + 2, ":", k));
       }
       capture->time_record(piece("thread ", i+2, " loop over."));
-      //capture->log_fatal(0, piece(i + 2, " killed the process."));
+     // capture->log_fatal(0, piece(i + 2, " killed the process."));
     });
   }
   for (int i = 0; i < 4; ++i) {
