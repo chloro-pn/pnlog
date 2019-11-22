@@ -43,7 +43,6 @@ pnlog是一个基于c++11标准的日志记录库。
     pnlog支持用户选择缓冲或者非缓冲模式打开日志文件。调用open函数是缓冲模式打开，而调用open_syn是非缓冲模式打开。stdout、stderr设置为非缓冲模式打开。
 
 ### <span id = "performance">pnlog的性能</span> #
-pnlog采用原子变量实现的自旋锁代替std::mutex，性能提升明显。
 测试用机：
 
  操作系统 | 处理器 | 磁盘
