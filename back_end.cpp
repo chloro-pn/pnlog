@@ -8,11 +8,6 @@
 #include <cassert>
 #include <mutex>
 
-/*整个backend需要重新设计，考虑线程池、bufcontainer和out_stream的关系。
-buf_container需要重新设计。
-*/
-
-
 namespace pnlog {
 
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
