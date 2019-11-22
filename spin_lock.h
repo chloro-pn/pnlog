@@ -5,6 +5,10 @@ namespace pnlog {
   class spin {
   public:
     spin() :lock_(false) {}
+    spin(const spin&) = delete;
+    spin(spin&& other) = delete;
+    spin& operator=(const spin&) = delete;
+    spin& operator=(spin&&) = delete;
 
     void lock() {
       bool exp = false;

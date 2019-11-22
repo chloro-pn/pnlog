@@ -3,6 +3,7 @@
 #include <iostream>
 #include <thread>
 #include "pnlog.h"
+#include <map>
 
 using pnlog::CapTure;
 using pnlog::capture;
@@ -24,7 +25,7 @@ int main()
   }
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < 4; ++i) {
     ths.emplace_back([&, i]()->void {
       capture->time_stamp(0, piece("thread ", i + 2, " loop begin."));
       for (int k = 0; k < 1000000; ++k) {
@@ -34,7 +35,7 @@ int main()
       //capture->log_fatal(0, piece(i + 2, " killed the process."));
     });
   }
-  for (int i = 0; i < 5; ++i) {
+  for (int i = 0; i < 4; ++i) {
     ths.at(i).join();
   }
   backend->close(2);

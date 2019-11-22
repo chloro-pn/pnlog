@@ -17,13 +17,7 @@ namespace pnlog {
       auto tmp = std::move(tasks_.front());
       tasks_.erase(tasks_.begin());
       lock.unlock();
-      bool conti = tmp.first();
-      if (conti == true) {
-        push_task(std::move(tmp));
-      }
-      else {
-        tmp.second();
-      }
+      tmp();
     }
   }
 

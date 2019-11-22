@@ -5,35 +5,57 @@
 #include <ctime>
 #include <cstring>
 #include <locale>
+#include <cassert>
+#include <mutex>
+
+/*整个backend需要重新设计，考虑线程池、bufcontainer和out_stream的关系。
+buf_container需要重新设计。
+*/
+
 
 namespace pnlog {
 
-  static_assert(BufContainer::buf_size_ >= CapTure::buf_size_, "container buf_size should >= capture buf_size!");
-
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
-    static std::shared_ptr<BackEnd> backend( new BackEnd(1));
+    static std::shared_ptr<BackEnd> backend( new BackEnd(128));
     return backend;
   }
 
   void BackEnd::write(size_type index, const char* ptr, size_type n) {
-    std::unique_lock<typename BufContainer::lock_type> mut(buf_container(index).mut_);
+    std::unique_lock<spin> mut(*(spins_.at(index).get()));
+    if (stops_.at(index) == true) {
+      return;
+    }
     if (out_stream(index) == nullptr) {
       mut.unlock();
       abort("write non - opened file.");
     }
-    else if (buf_container(index).running() == false) {
+    else if (bufs_.at(index) == nullptr) {
       out_stream(index)->write(ptr, n);
       mut.unlock();
     }
     else {
-      mut.unlock();
-      buf_container(index).write(ptr, n);
+      bufs_.at(index)->append(ptr, n);
+      if (bufs_.at(index)->error() == true) {
+        pool_.push_task([this, index]()->void {
+          this->write_in_thread_pool(index);
+        });
+        cv_can_write_.at(index)->wait(*spins_.at(index), [this, index]()->bool {return bufs_.at(index)->getSize() == 0 || stops_.at(index) == true; });
+        if (stops_.at(index) == true) {
+          return;
+        }
+        bufs_.at(index)->append(ptr, n);
+      }
     }
   }
 
-  BackEnd::BackEnd(size_type size) :pool_(size), stop_(false) {
-    for (size_type i = 0; i < FILES; ++i) {
-      out_streams_[i] = nullptr;
+  BackEnd::BackEnd(size_type size) :pool_(1),size_of_streams_and_bufs_(size), stop_(false) {
+    assert(size > 0);
+    out_streams_.resize(size);
+    for (int i = 0; i < size; ++i) {
+      bufs_.emplace_back(nullptr);
+      stops_.push_back(false);
+      cv_can_write_.emplace_back(new std::condition_variable_any);
+      spins_.emplace_back(new spin);
     }
     open_syn(0, new StdOutStream(stdout));
     open_syn(1, new StdOutStream(stderr));
@@ -50,24 +72,7 @@ namespace pnlog {
       abort("register opened file");
     }
     out_stream(index) = std::shared_ptr<out_stream_base>(out);
-    bool init_ = buf_container(index).init(log_container_size);
-    if (init_ == false) {
-      fprintf(stderr, "buf_container %d init error, container size : %d", static_cast<int>(index), static_cast<int>(log_container_size));
-      abort();
-    }
-    pool_.push_task(
-      std::make_pair(
-        [this, index]()->bool {
-          return buf_container(index).backEnd(out_stream(index));
-        }, 
-        [this, index]()->void {
-          out_stream(index)->write(buf_container(index).buf_.getBuf(), buf_container(index).buf_.getSize());
-          out_stream(index)->close();
-
-          out_stream(index).reset();
-          buf_container(index).clear();
-        }
-      ));
+    bufs_.at(index) = std::shared_ptr<CharArray>(new CharArray(4096));
 
     //每个日志打开后第一条日志是当前时刻的日期。
     std::time_t current_time = std::time(nullptr);
@@ -99,52 +104,45 @@ namespace pnlog {
     return out_streams_[index];
   }
 
-  inline
-  BufContainer& BackEnd::buf_container(size_type index) {
-    return buf_containers_[index];
-  }
-
-  void BackEnd::all_stop() {
-    for (size_type i = 0; i < FILES; ++i) {
-      if (buf_containers_[i].running() == false) {
+  void BackEnd::all_flush() {
+    //还需要一组stop参数
+    //先lock，然后stop全部赋值为true
+    //然后将当前bufs_中的内容通过线程池写入后台
+    //然后pool_.stop()
+    for (size_type i = 0; i < size_of_streams_and_bufs_; ++i) {
+      std::unique_lock<spin> mut(*(spins_.at(i).get()));
+      if (bufs_.at(i) == nullptr) {
         continue;
       }
-      std::unique_lock<typename BufContainer::lock_type> tmp(buf_containers_[i].mut_);
-      buf_containers_[i].stop();
-      tmp.unlock();
-      buf_containers_[i].cv_can_write_.notify_all();
+      stops_.at(i) = true;
+      mut.unlock();
+      cv_can_write_.at(i)->notify_all();
+      pool_.push_task([this, i]()->void {
+        this->write_in_thread_pool(i);
+      });
     }
   }
 
-  //非线程安全，且只能被调用一次。
   void BackEnd::close(size_type index) {
     bool range = rangecheck(index);
     if (range == false) {
       fprintf(stderr, "close file out of range : %d", static_cast<int>(index));
       abort();
     }
-    if (out_streams_[index] == nullptr) {
-      return;
-    }
-    if (buf_containers_[index].running() == false) {
-      //非缓冲文件，直接调用close。
-      out_streams_[index]->close();
-      out_streams_[index].reset();
-      return;
-    }
-    else {
-      std::unique_lock<typename BufContainer::lock_type> lock(buf_containers_[index].mut_);
-      buf_containers_[index].stop();
-      lock.unlock();
-      //唤醒由于关闭文件而等待的write线程，让其被唤醒。
-      buf_containers_[index].cv_can_write_.notify_all();
-    }
+    std::unique_lock<spin> mut(*(spins_.at(index).get()));
+    stops_.at(index) = true;
+    mut.unlock();
+    cv_can_write_.at(index)->notify_all();
+    pool_.push_task([this, index]()->void {
+      this->write_in_thread_pool(index);
+      this->out_streams_.at(index)->close();
+    });
   }
 
   void BackEnd::stop() {
     bool exp = false;
     if (stop_.compare_exchange_strong(exp, true)) {
-      all_stop();
+      all_flush();
       pool_.stop();
     }
   }
@@ -152,7 +150,7 @@ namespace pnlog {
   void BackEnd::abort(const char* error_message) {
     bool exp = false;
     if (stop_.compare_exchange_strong(exp, true)) {
-      all_stop();
+      all_flush();
       pool_.stop();
       if (error_message != nullptr) {
         fprintf(stderr, error_message);
@@ -166,9 +164,18 @@ namespace pnlog {
   }
 
   bool BackEnd::rangecheck(size_type index) const {
-    if (index < 0 || index >= FILES) {
+    if (index < 0 || index >= size_of_streams_and_bufs_) {
       return false;
     }
     return true;
+  }
+
+  void BackEnd::write_in_thread_pool(size_type index) {
+    CharArray tmp(4096);
+    std::unique_lock<spin> mut(*(spins_.at(index).get()));
+    std::swap(*bufs_.at(index), tmp);
+    mut.unlock();
+    cv_can_write_.at(index)->notify_all();
+    out_streams_.at(index)->write(tmp.getBuf(), tmp.getSize());
   }
 }//namespace pnlog

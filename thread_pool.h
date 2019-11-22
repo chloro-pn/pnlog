@@ -11,7 +11,7 @@ namespace pnlog {
   class ThreadPool {
   private:
     std::vector<std::thread> threads_;
-    using task_type = std::pair<std::function<bool()>,std::function<void()>>;
+    using task_type = std::function<void()>;
     std::list<task_type> tasks_;
     size_type th_counts_;
     std::condition_variable_any cv_;

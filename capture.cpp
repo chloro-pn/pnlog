@@ -19,7 +19,7 @@ namespace pnlog {
 
   void CapTure::log(size_type index, Level level, size_type line, const char* file, const std::string& str) {
     static thread_local CharArray tmp(buf_size_);
-    if (index < 0 || index >= BackEnd::FILES) {
+    if (back_->rangecheck(index)) {
       back_->abort("index out of range !\n");
     }
     tmp.append("file: ");
@@ -41,7 +41,7 @@ namespace pnlog {
 
   void CapTure::log(size_type index, Level level, const std::string& str) {
     static thread_local CharArray tmp(buf_size_);
-    if (index < 0 || index >= BackEnd::FILES) {
+    if (back_->rangecheck(index) == false) {
       back_->abort("index out of range !\n");
     }
     tmp.append(str.c_str());
