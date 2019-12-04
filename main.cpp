@@ -21,7 +21,7 @@ int main()
 {
   capture->setLevel(CapTure::Level::PN_TRACE);
   for (int i = 2; i < 10; ++i) {
-    backend->open(i, new pnlog::FileOutStream(piece("d://test", i, ".txt")));
+    backend->open(i, new pnlog::FileOutStream(piece("e://test", i, ".txt")));
   }
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;

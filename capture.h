@@ -30,21 +30,61 @@ namespace pnlog {
 
     static Level getLevel();
 
-    void log_trace(size_type index, size_type line, const char* file, const std::string& str);
+    inline
+    void log_trace(size_type index, size_type line, const char* file, const std::string& str) {
+      if (default_level_ <= Level::PN_TRACE) {
+        log(index, Level::PN_TRACE, line, file, str);
+      }
+    }
 
-    void log_debug(size_type index, size_type line, const char* file, const std::string& str);
+    inline
+    void log_debug(size_type index, size_type line, const char* file, const std::string& str) {
+      if (default_level_ <= Level::PN_DEBUG) {
+        log(index, Level::PN_DEBUG, line, file, str);
+      }
+    }
 
-    void log_error(size_type index, size_type line, const char* file, const std::string& str);
+    inline
+    void log_error(size_type index, size_type line, const char* file, const std::string& str) {
+      if (default_level_ <= Level::PN_ERROR) {
+        log(index, Level::PN_ERROR, line, file, str);
+      }
+    }
 
-    void log_fatal(size_type index, size_type line, const char* file, const std::string& str);
+    inline
+    void log_fatal(size_type index, size_type line, const char* file, const std::string& str) {
+      if (default_level_ <= Level::PN_FATAL) {
+        log(index, Level::PN_FATAL, line, file, str);
+      }
+    }
 
-    void log_trace(size_type index, const std::string& str);
+    inline
+    void log_trace(size_type index, const std::string& str) {
+      if (default_level_ <= Level::PN_TRACE) {
+        log(index, Level::PN_TRACE, str);
+      }
+    }
 
-    void log_debug(size_type index, const std::string& str);
+    inline
+    void log_debug(size_type index, const std::string& str) {
+      if (default_level_ <= Level::PN_DEBUG) {
+        log(index, Level::PN_DEBUG, str);
+      }
+    }
 
-    void log_error(size_type index, const std::string& str);
+    inline
+    void log_error(size_type index, const std::string& str) {
+      if (default_level_ <= Level::PN_ERROR) {
+        log(index, Level::PN_ERROR, str);
+      }
+    }
 
-    void log_fatal(size_type index, const std::string& str);
+    inline
+    void log_fatal(size_type index, const std::string& str) {
+      if (default_level_ <= Level::PN_FATAL) {
+        log(index, Level::PN_FATAL, str);
+      }
+    }
 
     ~CapTure();
 

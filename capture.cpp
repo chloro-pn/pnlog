@@ -56,57 +56,10 @@ namespace pnlog {
     tmp.setZero();
   }
 
-  void CapTure::log_trace(size_type index, size_type line, const char* file, const std::string& str) {
-    if (default_level_ <= Level::PN_TRACE) {
-      log(index, Level::PN_TRACE, line, file, str);
-    }
-  }
-
-  void CapTure::log_debug(size_type index, size_type line, const char* file, const std::string& str) {
-    if (default_level_ <= Level::PN_DEBUG) {
-      log(index, Level::PN_DEBUG, line, file, str);
-    }
-  }
-
-  void CapTure::log_error(size_type index, size_type line, const char* file, const std::string& str) {
-    if (default_level_ <= Level::PN_ERROR) {
-      log(index, Level::PN_ERROR, line, file, str);
-    }
-  }
-
-  void CapTure::log_fatal(size_type index, size_type line, const char* file, const std::string& str) {
-    if (default_level_ <= Level::PN_FATAL) {
-      log(index, Level::PN_FATAL, line, file, str);
-    }
-  }
-
-  void CapTure::log_trace(size_type index, const std::string& str) {
-    if (default_level_ <= Level::PN_TRACE) {
-      log(index, Level::PN_TRACE, str);
-    }
-  }
-
-  void CapTure::log_debug(size_type index, const std::string& str) {
-    if (default_level_ <= Level::PN_DEBUG) {
-      log(index, Level::PN_DEBUG, str);
-    }
-  }
-
-  void CapTure::log_error(size_type index, const std::string& str) {
-    if (default_level_ <= Level::PN_ERROR) {
-      log(index, Level::PN_ERROR, str);
-    }
-  }
-
-  void CapTure::log_fatal(size_type index, const std::string& str) {
-    if (default_level_ <= Level::PN_FATAL) {
-      log(index, Level::PN_FATAL, str);
-    }
-  }
-
   void CapTure::setLevel(Level l) {
     default_level_ = l;
   }
+
 
   CapTure::Level CapTure::getLevel() {
     return default_level_;

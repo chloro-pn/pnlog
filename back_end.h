@@ -42,7 +42,7 @@ namespace pnlog {
     ThreadPool pool_;
     std::vector<std::shared_ptr<out_stream_base>> out_streams_;
     std::vector<std::shared_ptr<CharArray>> bufs_;
-    std::vector<std::shared_ptr<lock_type>> spins_;
+    std::vector<std::shared_ptr<lock_type>> mutexs_;
     std::vector<std::shared_ptr<std::condition_variable>> cv_can_write_;
     std::vector<bool> stops_;
 

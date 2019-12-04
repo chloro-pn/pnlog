@@ -16,7 +16,7 @@ namespace pnlog {
   }
 
   void BackEnd::write(size_type index, const char* ptr, size_type n) {
-    std::unique_lock<lock_type> mut(*spins_.at(index));
+    std::unique_lock<lock_type> mut(*mutexs_.at(index));
     if (stops_.at(index) == true) {
       return;
     }
@@ -50,7 +50,7 @@ namespace pnlog {
       bufs_.emplace_back(nullptr);
       stops_.push_back(false);
       cv_can_write_.emplace_back(new std::condition_variable());
-      spins_.emplace_back(new lock_type());
+      mutexs_.emplace_back(new lock_type());
     }
     open_syn(0, new StdOutStream(stdout));
     open_syn(1, new StdOutStream(stderr));
@@ -101,7 +101,7 @@ namespace pnlog {
 
   void BackEnd::all_flush() {
     for (size_type i = 0; i < size_of_streams_and_bufs_; ++i) {
-      std::unique_lock<lock_type> mut(*spins_.at(i));
+      std::unique_lock<lock_type> mut(*mutexs_.at(i));
       if (bufs_.at(i) == nullptr) {
         continue;
       }
@@ -120,7 +120,7 @@ namespace pnlog {
       fprintf(stderr, "close file out of range : %d", static_cast<int>(index));
       abort();
     }
-    std::unique_lock<lock_type> mut(*spins_.at(index));
+    std::unique_lock<lock_type> mut(*mutexs_.at(index));
     stops_.at(index) = true;
     mut.unlock();
     cv_can_write_.at(index)->notify_all();
@@ -164,7 +164,7 @@ namespace pnlog {
 
   void BackEnd::write_in_thread_pool(size_type index) {
     CharArray tmp(4096);
-    std::unique_lock<lock_type> mut(*spins_.at(index));
+    std::unique_lock<lock_type> mut(*mutexs_.at(index));
     std::swap(*bufs_.at(index), tmp);
     mut.unlock();
     cv_can_write_.at(index)->notify_all();
