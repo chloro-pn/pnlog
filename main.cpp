@@ -9,14 +9,6 @@ using pnlog::CapTure;
 using pnlog::capture;
 using pnlog::backend;
 
-/*有问题
-新思路：
-全部注册给线程池去执行，
-不需要过度的同步措施。全异步会简单很多
-由线程池去处理结束时
-swapinback的操作（实际上不需要swapinback）
-*/
-
 int main()
 {
   capture->setLevel(CapTure::Level::PN_TRACE);

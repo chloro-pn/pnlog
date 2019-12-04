@@ -60,7 +60,6 @@ namespace pnlog {
     default_level_ = l;
   }
 
-
   CapTure::Level CapTure::getLevel() {
     return default_level_;
   }
