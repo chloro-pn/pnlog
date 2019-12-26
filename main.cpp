@@ -20,18 +20,8 @@ int main()
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;
   capture->time_stamp(0, piece("begin."));
-  for (int i = 2; i < 5; ++i) {
-    ths.emplace_back([&, i]()->void {
-      for (int k = 0; k < 1000000; ++k) {
-        capture->log_trace(i, piece(buf, ":", i, ":", k));
-      }
-      backend->close(i);
-      backend->open(i,new pnlog::FileOutStream(piece("e://test", i, "after.txt")));
-      capture->log_trace(i, piece(buf, ":", i));
-    });
-  }
-  for (int i = 0; i < 3; ++i) {
-    ths.at(i).join();
+  for (int i = 0; i < 2000000; ++i) {
+    capture->log_trace(2, buf);
   }
   capture->time_record(piece("over."));
   backend->stop();

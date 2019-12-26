@@ -38,4 +38,8 @@ public:
     cv_.notify_all();
     return tmp;
   }
+
+  size_type size() const {
+    return queue_.size();
+  }
 };
