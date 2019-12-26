@@ -1,7 +1,7 @@
 ﻿v3.0更新，重做了pnlog的内部数据结构，同一线程内先调用close后调用open现在是合法的。
 整体设计见下：
 
-<img src="https://github.com/chloro-pn/pnlog/blob/master/pic/4.png" width="450" height="300">
+<img src="https://github.com/chloro-pn/pnlog/blob/master/pic/4.png" width="800" height="500">
 
 ***
 
