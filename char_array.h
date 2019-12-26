@@ -11,9 +11,10 @@ namespace pnlog {
     size_type size_;
     size_type end_;//第一个还未被写的位置。
     bool error_;
+    size_type index_;
 
   public:
-    explicit CharArray(size_type size) :buf_(nullptr), size_(size), end_(0), error_(false) {
+    explicit CharArray(size_type size,size_type index) :buf_(nullptr), size_(size), end_(0), error_(false),index_(index) {
       buf_ = new char[static_cast<unsigned int>(size)](); //值初始化
     }
 
@@ -30,6 +31,7 @@ namespace pnlog {
       size_ = other.size_;
       end_ = other.end_;
       error_ = other.error_;
+      index_ = other.index_;
       other.buf_ = nullptr;
     }
 
@@ -39,9 +41,18 @@ namespace pnlog {
       size_ = other.size_;
       end_ = other.end_;
       error_ = other.error_;
+      index_ = other.index_;
       other.buf_ = nullptr;
 
       return *this;
+    }
+
+    void swap(CharArray& other) {
+      std::swap(buf_, other.buf_);
+      std::swap(size_, other.size_);
+      std::swap(end_, other.end_);
+      std::swap(error_, other.error_);
+      std::swap(index_, other.index_);
     }
 
     void append(const char* ptr, size_type nbyte) {
@@ -66,6 +77,10 @@ namespace pnlog {
 
     size_type getSize() const {
       return end_;
+    }
+
+    size_type getIndex() const {
+      return index_;
     }
 
     bool error() const {

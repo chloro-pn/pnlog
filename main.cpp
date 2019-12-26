@@ -5,6 +5,8 @@
 #include "pnlog.h"
 #include <map>
 
+//新模型基本搞定，下午修改chararray index的问题和其他细节。
+
 using pnlog::CapTure;
 using pnlog::capture;
 using pnlog::backend;
@@ -13,25 +15,26 @@ int main()
 {
   capture->setLevel(CapTure::Level::PN_TRACE);
   for (int i = 2; i < 10; ++i) {
-    backend->open(i, new pnlog::FileOutStream(piece("e://test", i, ".txt")));
+    backend->open(i, std::shared_ptr<pnlog::FileOutStream>(new pnlog::FileOutStream(piece("e://test", i, ".txt"))));
   }
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;
-  for (int i = 0; i < 4; ++i) {
+  capture->time_stamp(0, piece("begin."));
+  for (int i = 2; i < 5; ++i) {
     ths.emplace_back([&, i]()->void {
-      capture->time_stamp( 0, piece("thread ", i+2, " loop begin."));
-      for (int k = 0; k < 1000000; ++k) {
-        capture->log_trace(i + 2, piece(buf, ":", i + 2, ":", k));
+      for (int k = 0; k < 1; ++k) {
+        capture->log_trace(i, piece(buf, ":", i, ":", k));
       }
-      capture->time_record(piece("thread ", i+2, " loop over."));
-     // capture->log_fatal(0, piece(i + 2, " killed the process."));
+      backend->close(i);
+      backend->open(i,std::shared_ptr<pnlog::FileOutStream>(new pnlog::FileOutStream(piece("e://test", i, "after.txt"))));
+      capture->log_trace(i, piece(buf, ":", i));
     });
   }
-  for (int i = 0; i < 4; ++i) {
+  for (int i = 0; i < 3; ++i) {
     ths.at(i).join();
   }
-  backend->close(2);
-
+  capture->time_record(piece("over."));
+  backend->stop();
   system("pause");
   return 0;
 }

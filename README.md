@@ -1,4 +1,11 @@
-﻿# pnlog
+﻿v3.0更新，重做了pnlog的内部数据结构，同一线程内先调用close后调用open现在是合法的。
+整体设计见下：
+
+<img src="https://github.com/chloro-pn/pnlog/blob/master/pic/4.png" width="450" height="300">
+
+***
+
+# pnlog
 * [pnlog是什么？](#what-is-pnlog)
 
 * [pnlog的特点？](#characteristic)
@@ -15,11 +22,11 @@ pnlog是一个基于c++11标准的日志记录库。
 * 高效
 
     采用异步模型，日志首先会记录在缓冲buf中，当buf填满之后会由后台线程整块写入文件。
-    仅开启1个后台线程处理所有日志落盘（实际上本程序可以支持自定义开启线程数目，但本身日志库是io密集型程序，且当日志文件开启不多时线程越少效率越高）。
+    开启1个后台线程处理所有日志落盘。
 
 * 线程安全
 
-    多个线程向同一文件写入日志是线程安全的（包括标准输出和标准错误）。
+    多个线程向同一文件写入日志是线程安全的（包括标准输出）。
 
 * 可打开多个日志文件自由选择写入
 
@@ -40,7 +47,7 @@ pnlog是一个基于c++11标准的日志记录库。
     
 * 支持缓冲、非缓冲模式
 
-    pnlog支持用户选择缓冲或者非缓冲模式打开日志文件。调用open函数是缓冲模式打开，而调用open_syn是非缓冲模式打开。stdout、stderr设置为非缓冲模式打开。
+    pnlog支持用户选择缓冲或者非缓冲模式打开日志文件。调用open函数是缓冲模式打开，而调用open_syn是非缓冲模式打开。stdout设置为非缓冲模式打开。
 
 ### <span id = "performance">pnlog的性能</span> #
 测试用机：
@@ -79,6 +86,7 @@ example:
 #include <iostream>
 #include <thread>
 #include "pnlog.h"
+#include <map>
 
 using pnlog::CapTure;
 using pnlog::capture;
@@ -87,28 +95,31 @@ using pnlog::backend;
 int main()
 {
   capture->setLevel(CapTure::Level::PN_TRACE);
-  for (int i = 2; i < 20; ++i) {
-    backend->open(i, new pnlog::FileOutStream(piece("e://test",i,".txt")));
+  for (int i = 2; i < 10; ++i) {
+    backend->open(i, std::shared_ptr<pnlog::FileOutStream>(new pnlog::FileOutStream(piece("e://test", i, ".txt"))));
   }
-
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
 
+
   std::vector<std::thread> ths;
-  for (int i = 0; i < 3; ++i) {
-    ths.emplace_back([&,i]()->void{
-      capture->time_stamp(0, piece("thread ", i, " loop begin."));
+  capture->time_stamp(0, piece("begin."));
+  for (int i = 2; i < 5; ++i) {
+    ths.emplace_back([&, i]()->void {
       for (int k = 0; k < 1000000; ++k) {
-        capture->log_debug(rand() % 18 + 2, piece(buf, " ", k,":",i));
-        if (k % 100000 == 0) {
-          capture->time_record(piece("thread ", i, " k == ", k));
-        }
+        capture->log_trace(i, piece(buf, ":", i, ":", k));
       }
-      capture->time_record(piece("thread ", i, " loop over."));
+      backend->close(i);
+      backend->open(i,std::shared_ptr<pnlog::FileOutStream>(new pnlog::FileOutStream(piece("e://test", i, "after.txt"))));
+      capture->log_trace(i, piece(buf, ":", i));
     });
   }
+
+
   for (int i = 0; i < 3; ++i) {
     ths.at(i).join();
   }
+  capture->time_record(piece("over."));
+  backend->stop();
   system("pause");
   return 0;
 }
@@ -117,8 +128,8 @@ int main()
 
 当backend对象析构时会自动将内存中的日志落盘，不再需要显示的调用stop函数。
 
-可以线程安全的调用capture.log_fatal(i,...);函数，该函数首先将此条日志写入日志文件i的缓存中，然后将所有当前时刻前产生的日志落盘，
-最后调用std::abort()函数结束进程。多个线程调用capture.log_fatal函数，可能有多个fatal日志记录被落盘，但所有日志落盘操作以及std::abort()函数保证只调用一次。
+可以线程安全的调用capture->log_fatal(i,...);函数，该函数首先将此条日志写入日志文件i的缓存中，然后将所有当前时刻前产生的日志落盘，
+最后调用std::abort()函数结束进程。多个线程调用capture->log_fatal函数，可能有多个fatal日志记录被落盘，但所有日志落盘操作以及std::abort()函数保证只调用一次。
 
 关于piece：
 

@@ -1,6 +1,7 @@
 #include "capture.h"
 #include "back_end.h"
 #include "convert.h"
+#include "char_array.h"
 #include <string>
 
 
@@ -18,7 +19,7 @@ namespace pnlog {
   }
 
   void CapTure::log(size_type index, Level level, size_type line, const char* file, const std::string& str) {
-    static thread_local CharArray tmp(buf_size_);
+    static thread_local CharArray tmp(buf_size_, -1);
     if (back_->rangecheck(index)) {
       back_->abort("index out of range !\n");
     }
@@ -40,7 +41,7 @@ namespace pnlog {
   }
 
   void CapTure::log(size_type index, Level level, const std::string& str) {
-    static thread_local CharArray tmp(buf_size_);
+    static thread_local CharArray tmp(buf_size_, -1);
     if (back_->rangecheck(index) == false) {
       back_->abort("index out of range !\n");
     }
