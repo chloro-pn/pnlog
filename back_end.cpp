@@ -18,7 +18,7 @@ namespace pnlog {
   }
 
   void BackEnd::write(size_type index, const char* ptr, size_type n) {
-    outers_.at(index)->write(ptr, n);
+    outers_.at(static_cast<unsigned int>(index))->write(ptr, n);
   }
 
   void BackEnd::run_in_back() {
@@ -29,7 +29,7 @@ namespace pnlog {
     for (auto& each : bufs) {
       CharArray& buf = each.first;
       size_type index = buf.getIndex();
-      outers_.at(index)->out_stream_->write(buf.getBuf(), buf.getSize());
+      outers_.at(static_cast<unsigned int>(index))->out_stream_->write(buf.getBuf(), buf.getSize());
       each.second.set_value();
     }
   }
@@ -39,13 +39,13 @@ namespace pnlog {
     for (int i = 0; i < size; ++i) {
       outers_.emplace_back(new outer(i,this));
     }
-    open_syn(0, std::shared_ptr<out_stream_base>(new StdOutStream(stdout)));
+    open_syn(0, new StdOutStream(stdout));
     pool_.start();
   }
 
-  void BackEnd::open(size_type index, std::shared_ptr<out_stream_base> out) {
+  void BackEnd::open(size_type index, out_stream_base* out) {
     //每个日志打开后第一条日志是当前时刻的日期。
-    outers_.at(index)->open(out);
+    outers_.at(static_cast<unsigned int>(index))->open(out);
     std::time_t current_time = std::time(nullptr);
     char buf[128];
     std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
@@ -53,8 +53,8 @@ namespace pnlog {
     write(index, result.c_str(), result.size());
   }
 
-  void BackEnd::open_syn(size_type index, std::shared_ptr<out_stream_base> out) {
-    outers_.at(index)->open_syn(out);
+  void BackEnd::open_syn(size_type index, out_stream_base* out) {
+    outers_.at(static_cast<unsigned int>(index))->open_syn(out);
     //每个日志打开后第一条日志是当前时刻的日期。
     std::time_t current_time = std::time(nullptr);
     char buf[128];
@@ -64,7 +64,7 @@ namespace pnlog {
   }
 
   void BackEnd::close(size_type index) {
-    outers_.at(index)->close();
+    outers_.at(static_cast<unsigned int>(index))->close();
   }
 
   void BackEnd::stop() {

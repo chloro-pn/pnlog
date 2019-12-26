@@ -26,9 +26,9 @@ namespace pnlog {
     BackEnd& operator=(const BackEnd&) = delete;
     BackEnd& operator=(BackEnd&&) = delete;
 
-    void open(size_type index, std::shared_ptr<out_stream_base> out);
+    void open(size_type index, out_stream_base* out);
 
-    void open_syn(size_type index, std::shared_ptr<out_stream_base> out);
+    void open_syn(size_type index, out_stream_base* out);
 
     void close(size_type index);
 
