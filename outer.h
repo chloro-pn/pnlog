@@ -1,8 +1,9 @@
 #pragma once
 #include "out_stream_base.h"
 #include "char_array.h"
+#include "condition_variable_type.h"
+#include "spin_lock.h"
 #include <mutex>
-#include <condition_variable>
 #include <memory>
 
 namespace pnlog {
@@ -14,8 +15,9 @@ namespace pnlog {
   private:
     std::shared_ptr<out_stream_base> out_stream_;
     std::unique_ptr<CharArray> buf_;
-    std::mutex mut_;
-    std::condition_variable cv_;
+    using lock_type = spin;
+    lock_type mut_;
+    condition_variable_type<lock_type>::type cv_;
     BackEnd* back_;
     size_type index_;
 

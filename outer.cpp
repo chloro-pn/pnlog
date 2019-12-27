@@ -8,7 +8,7 @@ namespace pnlog {
   }
 
   void outer::open(out_stream_base* stream) {
-    std::unique_lock<std::mutex> mut(mut_);
+    std::unique_lock<lock_type> mut(mut_);
     assert(out_stream_ == nullptr);
     out_stream_.reset(stream);
     assert(buf_ == nullptr);
@@ -18,7 +18,7 @@ namespace pnlog {
   }
 
   void outer::open_syn(out_stream_base* stream) {
-    std::unique_lock<std::mutex> mut(mut_);
+    std::unique_lock<lock_type> mut(mut_);
     assert(out_stream_ == nullptr);
     out_stream_.reset(stream);
     assert(buf_ == nullptr);
@@ -28,7 +28,7 @@ namespace pnlog {
   }
 
   void outer::write(const char* buf, size_type length) {
-    std::unique_lock<std::mutex> mut(mut_);
+    std::unique_lock<lock_type> mut(mut_);
     if (state_ == state::closed || state_ == state::closing) {
       return;
     }
@@ -46,7 +46,7 @@ namespace pnlog {
   }
 
   void outer::close() {
-    std::unique_lock<std::mutex> mut(mut_);
+    std::unique_lock<lock_type> mut(mut_);
     if (state_ == state::closed || state_ == state::closing) {
       return;
     }

@@ -1,6 +1,7 @@
 #pragma once
 #include <cstring>
 #include <cstdint>
+#include <cassert>
 #include <cstdio>
 #include "type.h"
 

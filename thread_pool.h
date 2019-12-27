@@ -3,19 +3,10 @@
 #include <vector>
 #include <functional>
 #include <list>
-#include <condition_variable>
+#include <mutex>
+#include "condition_variable_type.h"
 #include "type.h"
 #include "spin_lock.h"
-
-template<class T>
-struct cv_type {
-  using type = std::condition_variable_any;
-};
-
-template<>
-struct cv_type<std::mutex> {
-  using type = std::condition_variable;
-};
 
 namespace pnlog {
   class ThreadPool {
@@ -25,7 +16,7 @@ namespace pnlog {
     using task_type = std::function<void()>;
     std::list<task_type> tasks_;
     size_type th_counts_;
-    cv_type<lock_type>::type cv_;
+    condition_variable_type<lock_type>::type cv_;
     lock_type mut_;
     bool stop_;
 
