@@ -22,7 +22,7 @@ namespace pnlog {
   }
 
   void BackEnd::run_in_back() {
-    BlockingQueue<CharArray>::value_type bufs = bufs_.get_all();
+    auto bufs = bufs_.get_all();
     if (bufs.empty() == true) {
       return;
     }

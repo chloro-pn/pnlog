@@ -9,14 +9,13 @@ namespace pnlog {
   template<class T>
   class BlockingQueue {
   private:
-    std::vector<std::pair<T, std::promise<void>>> queue_;
+    using element_type = std::pair<T, std::promise<void>>;
+    std::vector<element_type> queue_;
     using lock_type = spin;
     lock_type mut_;
     condition_variable_type<lock_type>::type cv_;
 
   public:
-
-    using value_type = std::vector<std::pair<T, std::promise<void>>>;
     BlockingQueue() {
 
     }
@@ -33,8 +32,8 @@ namespace pnlog {
       return std::move(fu);
     }
 
-    value_type get_all() {
-      value_type tmp;
+    std::vector<element_type> get_all() {
+      std::vector<element_type> tmp;
       std::unique_lock<lock_type> mut(mut_);
       tmp.swap(queue_);
       mut.unlock();
@@ -42,7 +41,6 @@ namespace pnlog {
       return tmp;
     }
 
-    //thread unsafe.
     inline 
     size_type size() const {
       return queue_.size();

@@ -30,7 +30,10 @@ pnlog是一个基于c++11标准的日志记录库。
 
 * 可打开多个日志文件自由选择写入
 
-    在记录之前可以打开多个日志文件，每个文件占有一索引号，日志记录时可以根据索引号选择对应的日志文件记录。pnlog在开始前默认将0号索引分配给stdout，1号索引分配给stderr，目前支持包括0号和1号在内的最多128个文件索引。
+    在记录之前可以打开多个日志文件，每个文件占有一索引号，日志记录时可以根据索引号选择对应的日志文件记录。pnlog在开始前默认将0号索引分配给stdout，目前支持包括0号和1号在内的最多128个文件索引。
+
+* 抽象文件类型
+    写入的文件类型不仅可以是磁盘文件，也可以是标准输出，后续扩展可以实现向日志服务器、数据库等的输入，只要继承out_stream_base并实现相关接口即可。
     
 * 跨平台
 
@@ -45,11 +48,14 @@ pnlog是一个基于c++11标准的日志记录库。
     pnlog不支持每条日志都记录当前时刻，每个日志文件被打开后第一条日志将会写入本地日历时间，pnlog提供time_stamp函数和time_record函数，可用来记录两函数调用之间的间隔时间。一次调用time_stamp之后可以多次调用time_record函数，每次返回的时间间隔都是当前时刻到调用time_stamp函数时刻的时间间隔，随时可以调用time_stamp刷新时刻开始点。该机制是线程安全并独立的，可以记录不同线程各自的间隔时间。
 
     
-* 支持缓冲、非缓冲模式
+* 支持同步、异步模式
 
-    pnlog支持用户选择缓冲或者非缓冲模式打开日志文件。调用open函数是缓冲模式打开，而调用open_syn是非缓冲模式打开。stdout设置为非缓冲模式打开。
+    pnlog支持用户选择同步或者异步模式打开日志文件。调用open函数是异步模式打开，而调用open_syn是同步模式打开。stdout设置为非缓冲模式打开。
 
 ### <span id = "performance">pnlog的性能</span> #
+
+v2.0 : 
+
 测试用机：
 
  操作系统 | 处理器 | 磁盘
@@ -76,6 +82,8 @@ win10 | Intel(R) Core(TM) i5-7500 CPU 3.40GHz 4核 | WDC WD20EZRZ-22Z5HB0 5400�
 * 自定义类的日志记录机制
     
     目前仅支持std::to_string可以转化的类型、c式字符串、std::string等类向日志输入，不支持自定义类向日志的输入。
+
+* piece性能不够优秀(由于使用了std::string?),优化其性能。
     
 ### <span id = "how-to-use-pnlog"> 如何使用pnlog</span> #
 pnlog库提供两个全局对象：capture和backend，capture对象用来捕获并记录日志，backend对象用来进行日志文件相关的操作。
@@ -86,7 +94,7 @@ example:
 #include <iostream>
 #include <thread>
 #include "pnlog.h"
-#include <map>
+#include "file_out_stream.h"
 
 using pnlog::CapTure;
 using pnlog::capture;
@@ -96,30 +104,22 @@ int main()
 {
   capture->setLevel(CapTure::Level::PN_TRACE);
   for (int i = 2; i < 10; ++i) {
-    backend->open(i, std::shared_ptr<pnlog::FileOutStream>(new pnlog::FileOutStream(piece("e://test", i, ".txt"))));
+    backend->open(i, new pnlog::FileOutStream(piece("e://test", i, ".txt")));
   }
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
-
-
   std::vector<std::thread> ths;
   capture->time_stamp(0, piece("begin."));
   for (int i = 2; i < 5; ++i) {
-    ths.emplace_back([&, i]()->void {
-      for (int k = 0; k < 1000000; ++k) {
-        capture->log_trace(i, piece(buf, ":", i, ":", k));
+    ths.emplace_back([&,i]()->void {
+      for (int k = 0; k < 2000000; ++k) {
+        capture->log_trace(i, piece(buf));
       }
-      backend->close(i);
-      backend->open(i,std::shared_ptr<pnlog::FileOutStream>(new pnlog::FileOutStream(piece("e://test", i, "after.txt"))));
-      capture->log_trace(i, piece(buf, ":", i));
     });
   }
-
-
-  for (int i = 0; i < 3; ++i) {
-    ths.at(i).join();
+  for (auto& each : ths) {
+    each.join();
   }
   capture->time_record(piece("over."));
-  backend->stop();
   system("pause");
   return 0;
 }
