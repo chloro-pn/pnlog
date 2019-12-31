@@ -12,23 +12,21 @@ namespace pnlog {
 
   private:
     std::shared_ptr<BackEnd> back_;
-    size_type index_;
     static Level default_level_;
 
   public:
-
     static constexpr size_type buf_size_ = 4096;
 
     static std::shared_ptr<CapTure> get_instance(std::shared_ptr<BackEnd> back);
+
+    static void setLevel(Level l);
+
+    static Level getLevel();
 
     CapTure(const CapTure&) = delete;
     CapTure(CapTure&&) = delete;
     CapTure& operator=(const CapTure&) = delete;
     CapTure& operator=(CapTure&&) = delete;
-
-    static void setLevel(Level l);
-
-    static Level getLevel();
 
     inline
     void log_trace(size_type index, size_type line, const char* file, const std::string& str) {
@@ -105,7 +103,6 @@ namespace pnlog {
     }
 
   private:
-
     CapTure(std::shared_ptr<BackEnd> b);
 
     void log(size_type index, Level level, size_type line, const char* file, const std::string& str);

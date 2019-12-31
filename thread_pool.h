@@ -1,12 +1,12 @@
 #pragma once
+#include "condition_variable_type.h"
+#include "type.h"
+#include "spin_lock.h"
 #include <thread>
 #include <vector>
 #include <functional>
 #include <list>
 #include <mutex>
-#include "condition_variable_type.h"
-#include "type.h"
-#include "spin_lock.h"
 
 namespace pnlog {
   class ThreadPool {

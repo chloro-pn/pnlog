@@ -3,7 +3,10 @@
 #include <cassert>
 
 namespace pnlog {
-  outer::outer(size_type index, BackEnd* back) :state_(state::closed), index_(index), back_(back), syn_(syn::no) {
+  outer::outer(size_type index, BackEnd* back) : back_(back),
+                                                 index_(index),
+                                                 state_(state::closed),
+                                                 syn_(syn::no) {
 
   }
 
@@ -55,14 +58,16 @@ namespace pnlog {
       return;
     }
     std::future<void> w = back_->push_buf(std::move(*buf_));
-    buf_.reset(); // closing 状态下buf_不可用，但有数据在后台队列中未写入。
+    buf_.reset();
+    //under the closing state,buf_ is unavailable,but there are some data waiting to be written.
     state_ = state::closing;
     mut.unlock();
-    w.get();//blocking...
-            //阻塞到后台线程将此块buf_全部写入，然后在这里将out_stream_关闭，并将状态修改为closed。
+    w.get();//blocking until back thread write all data.
+
     mut.lock();
     assert(state_ == state::closing);
     out_stream_.reset();
+    //under the closed state,buf_ is unabailable and no data need to be written in out_stream_.
     state_ = state::closed;
   }
 }

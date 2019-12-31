@@ -9,7 +9,6 @@
 namespace pnlog {
   class BackEnd;
 
-  //由于mut_和cv_的存在，该类型对象是不能move且不能copy的。
   class outer {
     friend class BackEnd;
   private:

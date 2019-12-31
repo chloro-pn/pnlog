@@ -6,7 +6,6 @@
 
 
 namespace pnlog {
-
   constexpr size_type CapTure::buf_size_;
 
   std::shared_ptr<CapTure> CapTure::get_instance(std::shared_ptr<BackEnd> back) {
@@ -14,7 +13,7 @@ namespace pnlog {
     return capture;
   }
 
-  CapTure::CapTure(std::shared_ptr<BackEnd> b) :back_(b), index_(0) {
+  CapTure::CapTure(std::shared_ptr<BackEnd> b) :back_(b) {
 
   }
 

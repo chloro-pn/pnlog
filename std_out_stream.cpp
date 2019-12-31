@@ -13,7 +13,7 @@ namespace pnlog {
   }
 
   void StdOutStream::close() {
-    //do nothing.
+    //do nothing.pnlog would not close stdout.
   }
 
   StdOutStream::~StdOutStream() {

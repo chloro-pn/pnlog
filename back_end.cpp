@@ -11,7 +11,6 @@
 #include <mutex>
 
 namespace pnlog {
-
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
     static std::shared_ptr<BackEnd> backend( new BackEnd(128));
     return backend;
@@ -44,8 +43,8 @@ namespace pnlog {
   }
 
   void BackEnd::open(size_type index, out_stream_base* out) {
-    //每个日志打开后第一条日志是当前时刻的日期。
     outers_.at(static_cast<unsigned int>(index))->open(out);
+    //write a time log.
     std::time_t current_time = std::time(nullptr);
     char buf[128];
     std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
@@ -55,7 +54,7 @@ namespace pnlog {
 
   void BackEnd::open_syn(size_type index, out_stream_base* out) {
     outers_.at(static_cast<unsigned int>(index))->open_syn(out);
-    //每个日志打开后第一条日志是当前时刻的日期。
+    //write a time log.
     std::time_t current_time = std::time(nullptr);
     char buf[128];
     std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));

@@ -1,9 +1,10 @@
 #pragma once
+#include "condition_variable_type.h"
+#include "spin_lock.h"
+#include "type.h"
 #include <vector>
 #include <mutex>
 #include <future>
-#include "condition_variable_type.h"
-#include "spin_lock.h"
 
 namespace pnlog {
   template<class T>
@@ -29,7 +30,7 @@ namespace pnlog {
       std::future<void> fu = pro.get_future();
       queue_.push_back(std::make_pair<T, std::promise<void>>(std::move(t), std::move(pro)));
       mut.unlock();
-      return std::move(fu);
+      return fu;
     }
 
     std::vector<element_type> get_all() {

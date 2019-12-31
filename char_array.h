@@ -1,22 +1,23 @@
 #pragma once
+#include "type.h"
 #include <cstring>
 #include <cstdint>
 #include <cassert>
 #include <cstdio>
-#include "type.h"
+#include <utility> // for std::swap.
 
 namespace pnlog {
   class CharArray {
   private:
     char* buf_;
     size_type size_;
-    size_type end_;//第一个还未被写的位置。
+    size_type end_;
     bool error_;
     size_type index_;
 
   public:
     explicit CharArray(size_type size,size_type index) :buf_(nullptr), size_(size), end_(0), error_(false),index_(index) {
-      buf_ = new char[static_cast<unsigned int>(size)](); //值初始化
+      buf_ = new char[static_cast<unsigned int>(size)]();
     }
 
     ~CharArray() {
@@ -44,7 +45,6 @@ namespace pnlog {
       error_ = other.error_;
       index_ = other.index_;
       other.buf_ = nullptr;
-
       return *this;
     }
 

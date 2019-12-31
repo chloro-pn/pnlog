@@ -15,10 +15,9 @@ namespace pnlog {
 
   class BackEnd {
     friend class CapTure;
-
     using lock_type = std::mutex;
-  public:
 
+  public:
     static std::shared_ptr<BackEnd> get_instance();
 
     BackEnd(const BackEnd&) = delete;

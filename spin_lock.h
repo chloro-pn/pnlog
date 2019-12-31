@@ -13,7 +13,7 @@ namespace pnlog {
     void lock() {
       bool exp = false;
       while (lock_.compare_exchange_weak(exp, true) == false) {
-        exp = false; // 这一步是必须的
+        exp = false;
       }
     }
 
@@ -21,7 +21,6 @@ namespace pnlog {
       lock_.store(false);
     }
 
-    //允许虚假失败
     bool try_lock() {
       bool exp = false;
       if (lock_.compare_exchange_weak(exp, true) == true) {
