@@ -32,7 +32,7 @@ namespace pnlog {
 
     void open_syn(out_stream_base* stream);
 
-    bool reopen(out_stream_base* stream);
+    void reopen(out_stream_base* stream);
 
     void write(const char* buf, size_type length);
 

@@ -31,17 +31,18 @@ namespace pnlog {
     state_ = state::writing;
   }
 
-  bool outer::reopen(out_stream_base* stream) {
+  void outer::reopen(out_stream_base* stream) {
     //writing：先关闭然后重新打开，返回true。
     //closed：直接打开，返回true。
-    //closing：正处于关闭进行时，返回false。
+    //closing：等待closing的最终状态。
     std::unique_lock<lock_type> mut(mut_);
     if (state_ == state::closing) {
-      return false;
+      reopen_or_close_cv_.wait(mut);
     }
     else if (state_ == state::closed) {
+      mut.unlock();
       open(stream);
-      return true;
+      return;
     }
     else {
       if (syn_ == syn::yes) {
@@ -49,7 +50,7 @@ namespace pnlog {
         buf_.reset(new CharArray(4096, index_));
         syn_ = syn::no;
         //state_ == state::writing.
-        return true;
+        return;
       }
       std::future<void> w = back_->push_buf(std::move(*buf_));
       buf_.reset();
@@ -70,7 +71,7 @@ namespace pnlog {
   void outer::write(const char* buf, size_type length) {
     std::unique_lock<lock_type> mut(mut_);
     if (state_ == state::closing) {
-      //直接让出线程，等待被close或者reopn唤醒。
+      //等待closing的最终状态。
       reopen_or_close_cv_.wait(mut);
     }
     assert(state_ != state::closing);
