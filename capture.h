@@ -3,6 +3,7 @@
 #include "back_end.h"
 #include "str_appender.h"
 #include <ctime>
+#include <string>
 #include <memory>
 
 namespace pnlog {
@@ -100,6 +101,14 @@ namespace pnlog {
       size_type index_ = get_thrad_local_file_index();
       double dt = static_cast<double>(end_ - start_) / CLOCKS_PER_SEC;
       log_debug(index_, piece(str, " use ", dt, " s."));
+    }
+
+    std::string get_current_time() const {
+      std::time_t current_time = std::time(nullptr);
+      char buf[128];
+      std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
+      std::string result(buf, sizeof(buf));
+      return result;
     }
 
   private:

@@ -1,5 +1,7 @@
 Debug/
 Release/
+pnlog/
+x64/
 .vs/
 *.vcxproj
 *.filters

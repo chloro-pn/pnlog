@@ -4,7 +4,6 @@
 #include "str_appender.h"
 #include "blocking_queue.h"
 #include "outer.h"
-#include <ctime>
 #include <cstring>
 #include <locale>
 #include <cassert>
@@ -44,22 +43,14 @@ namespace pnlog {
 
   void BackEnd::open(size_type index, out_stream_base* out) {
     outers_.at(static_cast<unsigned int>(index))->open(out);
-    //write a time log.
-    std::time_t current_time = std::time(nullptr);
-    char buf[128];
-    std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
-    std::string result = piece("index : ", index, ", ", buf, "\n");
-    write(index, result.c_str(), result.size());
   }
 
   void BackEnd::open_syn(size_type index, out_stream_base* out) {
     outers_.at(static_cast<unsigned int>(index))->open_syn(out);
-    //write a time log.
-    std::time_t current_time = std::time(nullptr);
-    char buf[128];
-    std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
-    std::string result = piece("index : ", index, ", ", buf, "\n");
-    write(index, result.c_str(), result.size());
+  }
+
+  void BackEnd::reopen(size_type index, out_stream_base* out) {
+    outers_.at(static_cast<unsigned int>(index))->reopen(out);
   }
 
   void BackEnd::close(size_type index) {

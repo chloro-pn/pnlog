@@ -29,6 +29,8 @@ namespace pnlog {
 
     void open_syn(size_type index, out_stream_base* out);
 
+    void reopen(size_type index, out_stream_base* out);
+
     void close(size_type index);
 
     void stop();

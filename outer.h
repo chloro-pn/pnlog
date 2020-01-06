@@ -16,7 +16,7 @@ namespace pnlog {
     std::unique_ptr<CharArray> buf_;
     using lock_type = spin;
     lock_type mut_;
-    condition_variable_type<lock_type>::type cv_;
+    condition_variable_type<lock_type>::type reopen_or_close_cv_;
     BackEnd* back_;
     size_type index_;
 
@@ -31,6 +31,8 @@ namespace pnlog {
     void open(out_stream_base* stream);
 
     void open_syn(out_stream_base* stream);
+
+    bool reopen(out_stream_base* stream);
 
     void write(const char* buf, size_type length);
 
