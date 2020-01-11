@@ -32,14 +32,14 @@ namespace pnlog {
   }
 
   void outer::reopen(out_stream_base* stream) {
-    //writing£ºÏÈ¹Ø±ÕÈ»ºóÖØĞÂ´ò¿ª£¬·µ»Øtrue¡£
-    //closed£ºÖ±½Ó´ò¿ª£¬·µ»Øtrue¡£
-    //closing£ºµÈ´ıclosingµÄ×îÖÕ×´Ì¬¡£
+    //writingï¼šå…ˆå…³é—­ç„¶åé‡æ–°æ‰“å¼€ï¼Œè¿”å›trueã€‚
+    //closedï¼šç›´æ¥æ‰“å¼€ï¼Œè¿”å›trueã€‚
+    //closingï¼šç­‰å¾…closingçš„æœ€ç»ˆçŠ¶æ€ã€‚
     std::unique_lock<lock_type> mut(mut_);
     if (state_ == state::closing) {
       reopen_or_close_cv_.wait(mut);
     }
-    else if (state_ == state::closed) {
+    if (state_ == state::closed) {
       mut.unlock();
       open(stream);
       return;
@@ -71,7 +71,7 @@ namespace pnlog {
   void outer::write(const char* buf, size_type length) {
     std::unique_lock<lock_type> mut(mut_);
     if (state_ == state::closing) {
-      //µÈ´ıclosingµÄ×îÖÕ×´Ì¬¡£
+      //ç­‰å¾…closingçš„æœ€ç»ˆçŠ¶æ€ã€‚
       reopen_or_close_cv_.wait(mut);
     }
     assert(state_ != state::closing);
