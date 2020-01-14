@@ -17,18 +17,17 @@ int main()
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
   std::vector<std::thread> ths;
   capture->time_stamp(0, piece("begin."));
-  for (int i = 2; i < 5; ++i) {
+  for (int i = 2; i < 3; ++i) {
     ths.emplace_back([&,i]()->void {
       for (int k = 0; k < 1000000; ++k) {
-        capture->log_trace(i, piece(buf, " ", k));
+        capture->log_trace(i,buf);
       }
     });
   }
-  backend->reopen(2, new pnlog::FileOutStream("reopenfile.txt"));
+  //backend->reopen(2, new pnlog::FileOutStream("reopenfile.txt"));
   for (auto& each : ths) {
     each.join();
   }
   capture->time_record(piece("over."));
-  system("pause");
   return 0;
 }

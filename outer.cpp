@@ -32,13 +32,10 @@ namespace pnlog {
   }
 
   void outer::reopen(out_stream_base* stream) {
-    //writing：先关闭然后重新打开，返回true。
-    //closed：直接打开，返回true。
-    //closing：等待closing的最终状态。
     std::unique_lock<lock_type> mut(mut_);
-    if (state_ == state::closing) {
-      reopen_or_close_cv_.wait(mut);
-    }
+    reopen_or_close_cv_.wait(mut,[this]()->bool{
+        return this->state_ != state::closing;
+    });
     if (state_ == state::closed) {
       mut.unlock();
       open(stream);
@@ -70,11 +67,10 @@ namespace pnlog {
 
   void outer::write(const char* buf, size_type length) {
     std::unique_lock<lock_type> mut(mut_);
-    if (state_ == state::closing) {
       //等待closing的最终状态。
-      reopen_or_close_cv_.wait(mut);
-    }
-    assert(state_ != state::closing);
+    reopen_or_close_cv_.wait(mut,[this]()->bool{
+        return this->state_ != state::closing;
+    });
     if (state_ == state::closed) {
       return;
     }

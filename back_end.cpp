@@ -19,24 +19,13 @@ namespace pnlog {
     outers_.at(static_cast<unsigned int>(index))->write(ptr, n);
   }
 
-  void BackEnd::run_in_back() {
-    auto bufs = bufs_.get_all();
-    if (bufs.empty() == true) {
-      return;
-    }
-    for (auto& each : bufs) {
-      CharArray& buf = each.first;
-      size_type index = buf.getIndex();
-      outers_.at(static_cast<unsigned int>(index))->out_stream_->write(buf.getBuf(), buf.getSize());
-      each.second.set_value();
-    }
-  }
-
-  BackEnd::BackEnd(size_type size) :pool_(1),size_of_streams_and_bufs_(size), stop_(false) {
+  BackEnd::BackEnd(size_type size) :pool_(1),size_of_streams_and_bufs_(size), stop_(false),event_pool_(new event_pool()) {
     assert(size > 0);
     for (int i = 0; i < size; ++i) {
       outers_.emplace_back(new outer(i,this));
     }
+    pool_.push_task([this]()->void {this->event_pool_->run();});
+
     open_syn(0, new StdOutStream(stdout));
     pool_.start();
   }
@@ -63,6 +52,7 @@ namespace pnlog {
       for (auto& each : outers_) {
         each->close();
       }
+      event_pool_->stop();
       pool_.stop();
     }
   }
@@ -73,6 +63,7 @@ namespace pnlog {
       for (auto& each : outers_) {
         each->close();
       }
+      event_pool_->stop();
       pool_.stop();
       if (error_message != nullptr) {
         fprintf(stderr, error_message);
@@ -93,10 +84,16 @@ namespace pnlog {
   }
 
   std::future<void> BackEnd::push_buf(CharArray&& buf) {
-    auto result = bufs_.push(std::move(buf));
-    pool_.push_task([this]()->void {
-      this->run_in_back();
-    });
-    return result;
+      std::shared_ptr<event_handle> e;
+      e->args_.reset(new CharArray(std::move(buf)));
+      e->func_ = [this](std::shared_ptr<event_handle> self)->void {
+          auto ptr_buf = static_cast<CharArray*>(self->args_.get());
+          size_type index = ptr_buf->getIndex();
+          this->outers_.at(index)->out_stream_->write(ptr_buf->getBuf(),ptr_buf->getSize());
+      };
+      e->type_ = event_handle::type::once;
+      auto result = event_pool_->push_event(e);
+      e->wake_up();
+      return result;
   }
 }//namespace pnlog

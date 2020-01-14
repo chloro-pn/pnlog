@@ -4,6 +4,7 @@
 #include "out_stream_base.h"
 #include "blocking_queue.h"
 #include "char_array.h"
+#include "event_pool.h"
 #include <memory>
 #include <atomic>
 #include <vector>
@@ -46,9 +47,9 @@ namespace pnlog {
   private:
     ThreadPool pool_;
 
-    size_type size_of_streams_and_bufs_;
+    std::shared_ptr<event_pool> event_pool_;
 
-    BlockingQueue<CharArray> bufs_;
+    size_type size_of_streams_and_bufs_;
 
     std::vector<std::unique_ptr<outer>> outers_;
 
@@ -57,7 +58,5 @@ namespace pnlog {
     explicit BackEnd(size_type size);
 
     void write(size_type index, const char* ptr, size_type n);
-
-    void run_in_back();
   };
 }//namespace pnlog
