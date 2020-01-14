@@ -84,7 +84,7 @@ namespace pnlog {
   }
 
   std::future<void> BackEnd::push_buf(CharArray&& buf) {
-      std::shared_ptr<event_handle> e;
+      std::shared_ptr<event_handle> e(new event_handle());
       e->args_.reset(new CharArray(std::move(buf)));
       e->func_ = [this](std::shared_ptr<event_handle> self)->void {
           auto ptr_buf = static_cast<CharArray*>(self->args_.get());

@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <cassert>
 #include <cstdio>
+#include <string>
 #include <utility> // for std::swap.
 
 namespace pnlog {
@@ -70,6 +71,10 @@ namespace pnlog {
 
     void append(const char* ptr) {
       append(ptr, strlen(ptr));
+    }
+
+    void append(const std::string& str) {
+        append(str.data(),str.size());
     }
 
     const char* getBuf() const {

@@ -3,6 +3,7 @@
 #include <string>
 
 namespace pnlog {
+
   template<class LastType>
   std::string piece(LastType&& last) {
     return convert_to_string(std::forward<LastType>(last));
