@@ -20,7 +20,7 @@ int main()
   for (int i = 2; i < 3; ++i) {
     ths.emplace_back([&,i]()->void {
       for (int k = 0; k < 1000000; ++k) {
-        capture->log_trace(i,piece(buf));
+        capture->log_trace(i,piece(buf,k));
       }
     });
   }

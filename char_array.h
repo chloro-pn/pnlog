@@ -74,7 +74,7 @@ namespace pnlog {
     }
 
     void append(const std::string& str) {
-        append(str.data(),str.size());
+        append(str.data(), str.size());
     }
 
     const char* getBuf() const {
