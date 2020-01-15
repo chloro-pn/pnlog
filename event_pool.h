@@ -10,6 +10,7 @@
 #include <chrono>
 #include <string>
 #include <atomic>
+#include <thread>
 
  // -> https://github.com/chloro-pn/event_pool.
 
@@ -63,7 +64,7 @@ private:
     uint64_t events_;
     uint64_t max_events_;
     bool stop_;
-
+    std::thread thread_;
     //for timer.
     using ptr_time_handle = std::shared_ptr<time_handle>;
     struct cmp_for_ptr_handle {
@@ -139,7 +140,14 @@ private:
 
 public:
     event_pool():triggers_(0),events_(0),max_events_(1024),stop_(false) {
+      
+    }
 
+    void start() {
+      thread_ = std::move(std::thread([this]()->void {
+        this->run();
+      })
+      );
     }
 
     std::future<void> push_event(std::shared_ptr<event_handle> h) {
@@ -176,6 +184,12 @@ public:
         std::unique_lock<std::mutex> mut(mut_);
         stop_ = true;
         at_least_one_wake_up_.notify_all();
+        mut.unlock();
+        thread_.join();
+    }
+
+    ~event_pool() {
+      assert(thread_.joinable() == false);
     }
 
     void run() {

@@ -6,10 +6,11 @@
 #include "char_array.h"
 #include "event_pool.h"
 #include <memory>
-#include <atomic>
+#include <string>
 #include <vector>
 #include <condition_variable>
 #include <mutex>
+#include <chrono>
 
 namespace pnlog {
   class outer;
@@ -19,6 +20,15 @@ namespace pnlog {
     using lock_type = std::mutex;
 
   public:
+    struct options {
+      bool asyn = true;
+      bool size_rotating = false;
+      uint64_t rotate_size;
+      bool duration_rotating = false;
+      std::chrono::milliseconds duration;
+      std::string path;
+    };
+
     static std::shared_ptr<BackEnd> get_instance();
 
     BackEnd(const BackEnd&) = delete;
@@ -26,9 +36,7 @@ namespace pnlog {
     BackEnd& operator=(const BackEnd&) = delete;
     BackEnd& operator=(BackEnd&&) = delete;
 
-    void open(size_type index, out_stream_base* out);
-
-    void open_syn(size_type index, out_stream_base* out);
+    void open(options option, size_type index, out_stream_base* out);
 
     void reopen(size_type index, out_stream_base* out);
 
@@ -51,6 +59,8 @@ namespace pnlog {
 
     size_type size_of_streams_and_bufs_;
 
+    BlockingQueue<CharArray> bufs_;
+
     std::vector<std::unique_ptr<outer>> outers_;
 
     std::atomic<bool> stop_;
@@ -58,5 +68,7 @@ namespace pnlog {
     explicit BackEnd(size_type size);
 
     void write(size_type index, const char* ptr, size_type n);
+
+    void run_in_back();
   };
 }//namespace pnlog

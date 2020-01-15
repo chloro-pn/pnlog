@@ -3,11 +3,13 @@
 #include "std_out_stream.h"
 #include "str_appender.h"
 #include "blocking_queue.h"
+#include "file_out_stream.h"
 #include "outer.h"
 #include <cstring>
 #include <locale>
 #include <cassert>
 #include <mutex>
+#include <iostream>
 
 namespace pnlog {
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
@@ -24,18 +26,44 @@ namespace pnlog {
     for (int i = 0; i < size; ++i) {
       outers_.emplace_back(new outer(i,this));
     }
-    pool_.push_task([this]()->void {this->event_pool_->run();});
+    event_pool_->start();
 
-    open_syn(0, new StdOutStream(stdout));
+    options op;
+    op.asyn = false;
+    open(op, 0, new StdOutStream(stdout));
     pool_.start();
   }
 
-  void BackEnd::open(size_type index, out_stream_base* out) {
-    outers_.at(static_cast<unsigned int>(index))->open(out);
-  }
-
-  void BackEnd::open_syn(size_type index, out_stream_base* out) {
-    outers_.at(static_cast<unsigned int>(index))->open_syn(out);
+  void BackEnd::open(options option, size_type index, out_stream_base* out) {
+    if (option.asyn == false) {
+      outers_.at(static_cast<unsigned int>(index))->open_syn(out);
+    }
+    else {
+      outers_.at(static_cast<unsigned int>(index))->open(out);
+    }
+    if (option.duration_rotating == true) {
+      std::string path = option.path;
+      std::shared_ptr<time_handle> ev(new time_handle());
+      ev->type_ = time_handle::type::duration;
+      ev->args_ = nullptr;
+      ev->duration_ = option.duration;
+      if (option.size_rotating == true) {
+        uint64_t max_size = option.rotate_size;
+        ev->func_ = [this, index, max_size, path](std::shared_ptr<time_handle> self)->void {
+          static int count = 0;
+          if (outers_.at(index)->written_bytes() >= max_size) {
+            outers_.at(index)->reopen(new FileOutStream(path + std::to_string(count++)));
+          }
+        };
+      }
+      else {
+        ev->func_ = [this, index](std::shared_ptr<time_handle> self)->void {
+          static int count = 0;
+          outers_.at(index)->reopen(new FileOutStream(std::string("e://test_rotating") + std::to_string(count++) + ".txt"));
+        };
+      }
+      event_pool_->push_timer(ev);
+    }
   }
 
   void BackEnd::reopen(size_type index, out_stream_base* out) {
@@ -84,6 +112,7 @@ namespace pnlog {
   }
 
   std::future<void> BackEnd::push_buf(CharArray&& buf) {
+    /*
       std::shared_ptr<event_handle> e(new event_handle());
       e->args_.reset(new CharArray(std::move(buf)));
       e->func_ = [this](std::shared_ptr<event_handle> self)->void {
@@ -94,6 +123,24 @@ namespace pnlog {
       e->type_ = event_handle::type::once;
       auto result = event_pool_->push_event(e);
       e->wake_up();
-      return result;
+    */
+    auto result = bufs_.push(std::move(buf));
+    pool_.push_task([this]()->void {
+      this->run_in_back();
+    });
+    return result;
+  }
+
+  void BackEnd::run_in_back() {
+    auto bufs = bufs_.get_all();
+    if (bufs.empty() == true) {
+      return;
+    }
+    for (auto& each : bufs) {
+      CharArray& buf = each.first;
+      size_type index = buf.getIndex();
+      outers_.at(static_cast<unsigned int>(index))->out_stream_->write(buf.getBuf(), buf.getSize());
+      each.second.set_value();
+    }
   }
 }//namespace pnlog
