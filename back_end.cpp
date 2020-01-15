@@ -57,9 +57,9 @@ namespace pnlog {
         };
       }
       else {
-        ev->func_ = [this, index](std::shared_ptr<time_handle> self)->void {
+        ev->func_ = [this, index, path](std::shared_ptr<time_handle> self)->void {
           static int count = 0;
-          outers_.at(index)->reopen(new FileOutStream(std::string("e://test_rotating") + std::to_string(count++) + ".txt"));
+          outers_.at(index)->reopen(new FileOutStream(path + std::to_string(count++)));
         };
       }
       event_pool_->push_timer(ev);
