@@ -89,7 +89,7 @@ namespace pnlog {
     buf_->append(buf, length);
     if (buf_->error() == true) {
       back_->push_buf(std::move(*buf_));
-      written_bytes_ += length;
+      written_bytes_ += buf_->getSize();
       buf_.reset(new CharArray(4096, index_));
       buf_->append(buf, length);
       assert(buf_->error() == false);
