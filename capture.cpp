@@ -44,7 +44,7 @@ namespace pnlog {
     if (back_->rangecheck(index) == false) {
       back_->abort("index out of range !\n");
     }
-    std::string time = get_current_time();
+    std::string time = get_current_time(); //too slowly.
     tmp.append("[");
     tmp.append(time.c_str());
     tmp.append("] ");
