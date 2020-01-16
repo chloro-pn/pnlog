@@ -2,6 +2,7 @@
 #include "back_end.h"
 #include "convert.h"
 #include "char_array.h"
+#include <sys/time.h>
 #include <string>
 
 
@@ -17,29 +18,7 @@ namespace pnlog {
 
   }
 
-  void CapTure::log(size_type index, Level level, size_type line, const char* file, const std::string& str) {
-    static thread_local CharArray tmp(buf_size_, -1);
-    if (back_->rangecheck(index)) {
-      back_->abort("index out of range !\n");
-    }
-    tmp.append("file: ");
-    tmp.append(file);
-    tmp.append(" line: ");
-    tmp.append(convert_to_string(line).c_str());
-    tmp.append(" : ");
-    tmp.append(str.c_str());
-    tmp.append("\n");
-    if (tmp.error() == true) {
-      back_->abort("log is too long!\n");
-    }
-    back_->write(index, tmp.getBuf(), tmp.getSize());
-    if (level == Level::PN_FATAL) {
-      back_->abort("log fatal!\n");
-    }
-    tmp.setZero();
-  }
-
-  void CapTure::log(size_type index, Level level, const std::string& str) {
+  void CapTure::log(size_type index, const char* level, const std::string& str) {
     static thread_local CharArray tmp(buf_size_, -1);
     if (back_->rangecheck(index) == false) {
       back_->abort("index out of range !\n");
@@ -48,13 +27,16 @@ namespace pnlog {
     tmp.append("[");
     tmp.append(time.c_str());
     tmp.append("] ");
+    tmp.append("[");
+    tmp.append(level);
+    tmp.append("] ");
     tmp.append(str.c_str());
     tmp.append("\n");
     if (tmp.error() == true) {
       back_->abort("log is too long!\n");
     }
     back_->write(index, tmp.getBuf(), tmp.getSize());
-    if (level == Level::PN_FATAL) {
+    if (*level == 'F') { // fatal.
       back_->abort("log fatal!\n");
     }
     tmp.setZero();
