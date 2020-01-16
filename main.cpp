@@ -14,7 +14,7 @@ int main()
   capture->setLevel(CapTure::Level::PN_TRACE);
   pnlog::BackEnd::options option;
   
-  option.asyn = true;
+  option.asyn = false;
   backend->open(option, 2, new pnlog::FileOutStream("pnlogger"));
   char buf[100] = "Youth is not a time of life; it is a state of mind. It is not a matter of rosy cheeks.";
 
@@ -26,7 +26,7 @@ int main()
   for (int i = 2; i < 3; ++i) {
     ths.emplace_back([&,i]()->void {
       for (int k = 0; k < 1000000; ++k) {
-        capture->trace(2, piece(buf, " ", k));
+        capture->trace(2, piece(buf));
       }
     });
   }

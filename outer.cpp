@@ -110,7 +110,7 @@ namespace pnlog {
     std::future<void> w = back_->push_buf(std::move(*buf_));
     written_bytes_ += buf_->getSize();
     buf_.reset();
-    //under the closing state,buf_ is unavailable,but there are some data waiting to be written.
+    //under the closing state,buf_ is unavailable, but there are some data waiting to be written.
     state_ = state::closing;
     mut.unlock();
     w.get();//blocking until back thread write all data.
@@ -118,7 +118,7 @@ namespace pnlog {
     mut.lock();
     assert(state_ == state::closing);
     out_stream_.reset();
-    //under the closed state,buf_ is unabailable and no data need to be written in out_stream_.
+    //under the closed state, buf_ is unabailable and no data need to be written in out_stream_.
     state_ = state::closed;
     written_bytes_ = 0;
     reopen_or_close_cv_.notify_all();
