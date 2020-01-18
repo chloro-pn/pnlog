@@ -5,9 +5,9 @@
 namespace pnlog {
   outer::outer(size_type index, BackEnd* back) : back_(back),
                                                  index_(index),
+                                                 written_bytes_(0),
                                                  state_(state::closed),
-                                                 syn_(syn::no),
-                                                 written_bytes_(0){
+                                                 syn_(syn::no){
 
   }
 

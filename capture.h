@@ -10,6 +10,9 @@
 namespace pnlog {
   using namespace std::chrono;
 
+  extern thread_local time_t tlast_seconds_;
+  extern thread_local char tbuf_[64];
+
   class CapTure {
   public:
     enum class Level { PN_TRACE, PN_DEBUG, PN_INFO, PN_WARNING, PN_ERROR, PN_FATAL };
@@ -93,26 +96,23 @@ namespace pnlog {
     }
 
     std::string get_current_time() const {
-      /*
-      std::time_t current_time = std::time(nullptr);
-      char buf[128];
-      std::strftime(buf, sizeof(buf), "%c", std::localtime(&current_time));
-      std::string result(buf, sizeof(buf));
-      */
       timeval time;
       gettimeofday(&time,nullptr);
-      char buf[64] = {0};
       time_t seconds = time.tv_sec;
-      struct tm tm_time;
-      gmtime_r(&seconds, &tm_time);
+
+      if (tlast_seconds_ != seconds) {
+        tlast_seconds_ = seconds;
+        struct tm tm_time;
+        gmtime_r(&seconds, &tm_time);
+        snprintf(tbuf_, sizeof(tbuf_), "%4d%02d%02d %02d:%02d:%02d",
+               tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
+               tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec
+               );
+      }
 
       int microseconds = static_cast<int>(time.tv_usec);
-      snprintf(buf, sizeof(buf), "%4d%02d%02d %02d:%02d:%02d.%06d",
-               tm_time.tm_year + 1900, tm_time.tm_mon + 1, tm_time.tm_mday,
-               tm_time.tm_hour, tm_time.tm_min, tm_time.tm_sec,
-               microseconds);
-
-      return buf;
+      snprintf(tbuf_ + 17,sizeof(tbuf_) - 18,".%06d", microseconds);
+      return tbuf_;
     }
 
   private:

@@ -2,7 +2,6 @@
 #include <thread>
 #include "pnlog.h"
 #include "file_out_stream.h"
-#include "back_end.h"
 #include <chrono>
 
 using pnlog::CapTure;
