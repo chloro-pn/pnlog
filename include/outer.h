@@ -21,7 +21,6 @@ namespace pnlog {
     condition_variable_type<lock_type>::type reopen_or_close_cv_;
     BackEnd* back_;
     size_type index_;
-    uint64_t written_bytes_;
 
     enum class state { closed, closing, writing };
     state state_;
@@ -40,12 +39,5 @@ namespace pnlog {
     void write(const char* buf, size_type length);
 
     void close();
-
-    uint64_t written_bytes() const {
-      uint64_t result;
-      std::unique_lock<lock_type> mut(mut_);
-      result = written_bytes_;
-      return result;
-    }
   };
 }

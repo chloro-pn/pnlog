@@ -26,6 +26,10 @@ namespace pnlog {
 
   }
 
+  void CapTure::close() {
+    back_->close(index_);
+  }
+
   void CapTure::log(size_type index, const char* level, const std::string& str) {
     CharArray tmp(buf_size_, -1);
     if (back_->rangecheck(index) == false) {

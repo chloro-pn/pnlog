@@ -17,7 +17,7 @@ namespace pnlog {
     size_type index_;
 
   public:
-    explicit CharArray(size_type size,size_type index) :buf_(nullptr), size_(size), end_(0), error_(false),index_(index) {
+    explicit CharArray(size_type size,size_type index = -1) :buf_(nullptr), size_(size), end_(0), error_(false),index_(index) {
       buf_ = new char[static_cast<unsigned int>(size)]();
     }
 

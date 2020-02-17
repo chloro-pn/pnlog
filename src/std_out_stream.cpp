@@ -1,15 +1,15 @@
 #include "../include/std_out_stream.h"
 #include <cstdio>
-#include <cassert>
+#include "../include/release_assert.h"
 
 namespace pnlog {
   StdOutStream::StdOutStream(FILE* f) :file_(f) {
-    assert(f != nullptr);
+    release_assert(f != nullptr);
   }
 
   void StdOutStream::write(const char* ptr, size_type n) {
     auto code = fprintf(file_, ptr);
-    assert(code >= 0);
+    release_assert(code >= 0);
   }
 
   void StdOutStream::close() {

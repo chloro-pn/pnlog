@@ -5,11 +5,8 @@
 #include "../include/blocking_queue.h"
 #include "../include/file_out_stream.h"
 #include "../include/outer.h"
-#include <cstring>
-#include <locale>
-#include <cassert>
-#include <mutex>
-#include <iostream>
+#include "../include/timer.h"
+#include "../include/release_assert.h"
 
 namespace pnlog {
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
@@ -21,8 +18,8 @@ namespace pnlog {
     outers_.at(static_cast<unsigned int>(index))->write(ptr, n);
   }
 
-  BackEnd::BackEnd(size_type size) :pool_(1),size_of_streams_and_bufs_(size), stop_(false),event_pool_(new event_pool()) {
-    assert(size > 0);
+  BackEnd::BackEnd(size_type size) :pool_(1),event_pool_(new event_pool()),size_of_streams_and_bufs_(size), stop_(false) {
+    release_assert(size > 0);
     for (int i = 0; i < size; ++i) {
       outers_.emplace_back(new outer(i,this));
     }
@@ -51,21 +48,9 @@ namespace pnlog {
       ev->type_ = time_handle::type::duration;
       ev->args_ = nullptr;
       ev->duration_ = option.duration;
-      if (option.size_rotating == true) {
-        uint64_t max_size = option.rotate_size;
-        ev->func_ = [this, index, max_size, path](std::shared_ptr<time_handle> self)->void {
-          static int count = 0;
-          if (outers_.at(index)->written_bytes() >= max_size) {
-            outers_.at(index)->reopen(new FileOutStream(path + std::to_string(count++)));
-          }
-        };
-      }
-      else {
-        ev->func_ = [this, index, path](std::shared_ptr<time_handle> self)->void {
-          static int count = 0;
-          outers_.at(index)->reopen(new FileOutStream(path + std::to_string(count++)));
-        };
-      }
+      ev->func_ = [this, index, path](std::shared_ptr<time_handle> self)->void {
+        outers_.at(index)->reopen(new FileOutStream(path + timer::instance().now()));
+      };
       event_pool_->push_timer(ev);
     }
   }

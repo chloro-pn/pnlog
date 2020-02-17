@@ -23,8 +23,6 @@ namespace pnlog {
   public:
     struct options {
       bool asyn = true;
-      bool size_rotating = false;
-      uint64_t rotate_size;
       bool duration_rotating = false;
       std::chrono::milliseconds duration;
       std::string path;

@@ -1,4 +1,6 @@
 #include "../include/timer.h"
+#include <string>
+#include <cstdio>
 
 namespace pnlog {
 std::string timer::now() {

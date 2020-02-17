@@ -27,6 +27,8 @@ namespace pnlog {
   public:
     static constexpr size_type buf_size_ = 4096;
 
+    void close();
+
     void setLevel(Level l);
 
     Level getLevel();
