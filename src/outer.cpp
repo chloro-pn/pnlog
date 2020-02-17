@@ -1,5 +1,5 @@
-#include "outer.h"
-#include "back_end.h"
+#include "../include/outer.h"
+#include "../include/back_end.h"
 #include <cassert>
 
 namespace pnlog {
@@ -73,7 +73,7 @@ namespace pnlog {
 
   void outer::write(const char* buf, size_type length) {
     std::unique_lock<lock_type> mut(mut_);
-      //等待closing的最终状态。
+    //等待closing的最终状态。
     reopen_or_close_cv_.wait(mut,[this]()->bool{
         return this->state_ != state::closing;
     });

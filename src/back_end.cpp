@@ -1,10 +1,10 @@
-#include "back_end.h"
-#include "capture.h"
-#include "std_out_stream.h"
-#include "str_appender.h"
-#include "blocking_queue.h"
-#include "file_out_stream.h"
-#include "outer.h"
+#include "../include/back_end.h"
+#include "../include/capture.h"
+#include "../include/std_out_stream.h"
+#include "../include/str_appender.h"
+#include "../include/blocking_queue.h"
+#include "../include/file_out_stream.h"
+#include "../include/outer.h"
 #include <cstring>
 #include <locale>
 #include <cassert>
@@ -32,6 +32,10 @@ namespace pnlog {
     op.asyn = false;
     open(op, 0, new StdOutStream(stdout));
     pool_.start();
+  }
+
+  std::shared_ptr<CapTure> BackEnd::get_capture(size_type index) {
+      return std::shared_ptr<CapTure>(new CapTure(shared_from_this(), index));
   }
 
   void BackEnd::open(options option, size_type index, out_stream_base* out) {
@@ -85,7 +89,7 @@ namespace pnlog {
     }
   }
 
-  void BackEnd::abort(const char* error_message) {
+  void BackEnd::abort(std::string error_message) {
     bool exp = false;
     if (stop_.compare_exchange_strong(exp, true)) {
       for (auto& each : outers_) {
@@ -93,8 +97,8 @@ namespace pnlog {
       }
       event_pool_->stop();
       pool_.stop();
-      if (error_message != nullptr) {
-        fprintf(stderr, error_message);
+      if (error_message != "") {
+        fprintf(stderr, error_message.c_str());
       }
       std::abort();
     }
@@ -112,18 +116,6 @@ namespace pnlog {
   }
 
   std::future<void> BackEnd::push_buf(CharArray&& buf) {
-    /*
-      std::shared_ptr<event_handle> e(new event_handle());
-      e->args_.reset(new CharArray(std::move(buf)));
-      e->func_ = [this](std::shared_ptr<event_handle> self)->void {
-          auto ptr_buf = static_cast<CharArray*>(self->args_.get());
-          size_type index = ptr_buf->getIndex();
-          this->outers_.at(index)->out_stream_->write(ptr_buf->getBuf(),ptr_buf->getSize());
-      };
-      e->type_ = event_handle::type::once;
-      auto result = event_pool_->push_event(e);
-      e->wake_up();
-    */
     auto result = bufs_.push(std::move(buf));
     pool_.push_task([this]()->void {
       this->run_in_back();

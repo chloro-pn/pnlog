@@ -5,6 +5,7 @@
 #include "blocking_queue.h"
 #include "char_array.h"
 #include "event_pool.h"
+#include "capture.h"
 #include <memory>
 #include <string>
 #include <vector>
@@ -15,7 +16,7 @@
 namespace pnlog {
   class outer;
 
-  class BackEnd {
+  class BackEnd : public std::enable_shared_from_this<BackEnd> {
     friend class CapTure;
     using lock_type = std::mutex;
 
@@ -36,6 +37,8 @@ namespace pnlog {
     BackEnd& operator=(const BackEnd&) = delete;
     BackEnd& operator=(BackEnd&&) = delete;
 
+    std::shared_ptr<CapTure> get_capture(size_type index);
+
     void open(options option, size_type index, out_stream_base* out);
 
     void reopen(size_type index, out_stream_base* out);
@@ -44,7 +47,7 @@ namespace pnlog {
 
     void stop();
 
-    void abort(const char* = nullptr);
+    void abort(std::string message = "");
 
     ~BackEnd();
 

@@ -6,7 +6,6 @@
 #include <mutex>
 #include <future>
 
-//maybe replaced by event_pool.
 namespace pnlog {
   template<class T>
   class BlockingQueue {

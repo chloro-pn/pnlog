@@ -1,4 +1,4 @@
-#include "std_out_stream.h"
+#include "../include/std_out_stream.h"
 #include <cstdio>
 #include <cassert>
 
