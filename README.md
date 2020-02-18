@@ -1,5 +1,15 @@
 # pnlog
-a c++ log library based on c++11.
+a c++ log library based on c++11 for linux.
+
+# features
+* 多日志文件
+* 基于日志文件的同步/异步模式
+* 基于前端对象的日志等级
+* 基于日志文件的按时间间隔回滚
+* 日志文件运行时关闭
+* 支持输出到stdout
+* 支持打开/关闭时间戳记录
+* 日志记录，reopen，close接口线程安全
 
 # build
 pnlog uses cmake build tool to build the project.
