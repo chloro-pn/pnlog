@@ -13,7 +13,7 @@ int main() {
   pnlog::BackEnd::options op;
   //Rotate by duration, and each 3 seconds rotate the log file.
   op.duration_rotating = true;
-  op.duration = std::chrono::seconds(1);
+  op.duration = std::chrono::seconds(3);
   //set rotate file path and name.
   op.path = "example5";
   backend->open(op, 1, new pnlog::FileOutStream("example5.txt"));

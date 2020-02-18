@@ -9,7 +9,7 @@
 using pnlog::backend;
 int main() {
   pnlog::BackEnd::options op;
-  backend->open(op, 1, new pnlog::FileOutStream("example4"));
+  backend->open(op, 1, new pnlog::FileOutStream("example4log.txt"));
   auto cap1 = backend->get_capture(1);
   cap1->enable_time();
   for(int i = 0; i < 5; ++i) {

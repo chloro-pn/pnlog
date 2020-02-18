@@ -11,8 +11,8 @@ using namespace pnlog;
 
 int main() {
   BackEnd::options op;
-  backend->open(op, 1, new FileOutStream("example6"));
-  backend->open(op, 2, new FileOutStream("example6_closed"));
+  backend->open(op, 1, new FileOutStream("example6log.txt"));
+  backend->open(op, 2, new FileOutStream("example6_closedlog.txt"));
   auto cap = backend->get_capture(1);
   auto cap2 = backend->get_capture(2);
   std::thread th([&]()->void {
@@ -21,8 +21,10 @@ int main() {
                      cap2->trace(piece("waiting for close.", i));
                    }
                  });
+  backend->close(2);
   usleep(1e4);
-  backend->reopen(1, new FileOutStream("example6_reopen"));
+  backend->reopen(1, new FileOutStream("example6_reopenlog.txt"));
   th.join();
+  std::cout << "please check example6*.txt file \n";
   return 0;
 }
