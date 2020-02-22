@@ -11,6 +11,7 @@
 using pnlog::backend;
 int main() {
   pnlog::BackEnd::options op;
+  op.asyn = false;
   //Rotate by duration, and each 3 seconds rotate the log file.
   op.duration_rotating = true;
   op.duration = std::chrono::seconds(3);

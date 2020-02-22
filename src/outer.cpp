@@ -37,15 +37,19 @@ namespace pnlog {
         return this->state_ != state::closing;
     });
     if (state_ == state::closed) {
-      mut.unlock();
-      open(stream);
+      if(syn_ == syn::yes) {
+        mut.unlock();
+        open_syn(stream);
+      }
+      else {
+        mut.unlock();
+        open(stream);
+      }
       return;
     }
     else {
       if (syn_ == syn::yes) {
         out_stream_.reset(stream);
-        buf_.reset(new CharArray(4096, index_));
-        syn_ = syn::no;
         //state_ == state::writing.
         return;
       }

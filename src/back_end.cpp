@@ -21,7 +21,7 @@ namespace pnlog {
   BackEnd::BackEnd(size_type size) :pool_(1),event_pool_(new event_pool()),size_of_streams_and_bufs_(size), stop_(false) {
     release_assert(size > 0);
     for (int i = 0; i < size; ++i) {
-      outers_.emplace_back(new outer(i,this));
+      outers_.emplace_back(new outer(i, this));
     }
     event_pool_->start();
 
@@ -49,7 +49,7 @@ namespace pnlog {
       ev->args_ = nullptr;
       ev->duration_ = option.duration;
       ev->func_ = [this, index, path](std::shared_ptr<time_handle> self)->void {
-        outers_.at(index)->reopen(new FileOutStream(path + timer::instance().now()));
+        outers_.at(index)->reopen(new FileOutStream(path +std::string("_") + timer::instance().now()));
       };
       event_pool_->push_timer(ev);
     }
