@@ -2,6 +2,8 @@
 #include <string>
 #include <cstdio>
 
+//learn from muduo.timestamp --> https://github.com/chenshuo/muduo
+
 namespace pnlog {
 std::string timer::now() {
   thread_local time_t tlast_seconds_ {0};

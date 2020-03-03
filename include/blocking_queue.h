@@ -24,7 +24,7 @@ namespace pnlog {
     std::future<void> push(T&& t) {
       std::unique_lock<lock_type> mut(mut_);
       cv_.wait(mut, [this]()->bool {
-        return this->queue_.size() <= 25;
+        return this->queue_.size() <= 5;
       });
       std::promise<void> pro;
       std::future<void> fu = pro.get_future();

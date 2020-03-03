@@ -10,7 +10,7 @@
 
 namespace pnlog {
   std::shared_ptr<BackEnd> BackEnd::get_instance() {
-    static std::shared_ptr<BackEnd> backend( new BackEnd(128));
+    static std::shared_ptr<BackEnd> backend(new BackEnd(128));
     return backend;
   }
 
