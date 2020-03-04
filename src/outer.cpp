@@ -15,7 +15,7 @@ namespace pnlog {
     release_assert(out_stream_ == nullptr);
     out_stream_.reset(stream);
     release_assert(buf_ == nullptr);
-    buf_.reset(new CharArray(4096, index_));
+    buf_.reset(new CharArrayWrapper(index_));
     release_assert(state_ == state::closed);
     state_ = state::writing;
     syn_ = syn::no;
@@ -62,7 +62,7 @@ namespace pnlog {
       mut.lock();
       release_assert(state_ == state::closing);
       out_stream_.reset(stream);
-      buf_.reset(new CharArray(4096, index_));
+      buf_.reset(new CharArrayWrapper(index_));
       syn_ = syn::no;
       state_ = state::writing;
       reopen_or_close_cv_.notify_all();
@@ -83,12 +83,12 @@ namespace pnlog {
       out_stream_->write(buf, length);
       return;
     }
-    buf_->append(buf, length);
-    if (buf_->error() == true) {
+    buf_->get()->append(buf, length);
+    if (buf_->get()->error() == true) {
       back_->push_buf(std::move(*buf_));
-      buf_.reset(new CharArray(4096, index_));
-      buf_->append(buf, length);
-      release_assert(buf_->error() == false);
+      buf_.reset(new CharArrayWrapper(index_));
+      buf_->get()->append(buf, length);
+      release_assert(buf_->get()->error() == false);
     }
   }
 

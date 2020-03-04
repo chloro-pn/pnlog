@@ -1,7 +1,7 @@
 #include "../include/capture.h"
 #include "../include/back_end.h"
 #include "../include/convert.h"
-#include "../include/char_array.h"
+#include "../include/char_array_wrapper.h"
 #include <string>
 
 
@@ -31,25 +31,25 @@ namespace pnlog {
   }
 
   void CapTure::log(size_type index, const char* level, const std::string& str) {
-    CharArray tmp(buf_size_, -1);
+    CharArrayWrapper tmp(-1);
     if (back_->rangecheck(index) == false) {
       fprintf(stderr,"index out of range !");
       std::abort();
     }
     if(tflag_ == time_record::on) {
-      tmp.append("[");
-      tmp.append(timer::instance().now());
-      tmp.append("] ");
+      tmp.get()->append("[");
+      tmp.get()->append(timer::instance().now());
+      tmp.get()->append("] ");
     }
-    tmp.append("[");
-    tmp.append(level);
-    tmp.append("] ");
-    tmp.append(str.c_str());
-    tmp.append("\n");
-    if (tmp.error() == true) {
+    tmp.get()->append("[");
+    tmp.get()->append(level);
+    tmp.get()->append("] ");
+    tmp.get()->append(str.c_str());
+    tmp.get()->append("\n");
+    if (tmp.get()->error() == true) {
       back_->abort("log is too long!\n");
     }
-    back_->write(index, tmp.getBuf(), tmp.getSize());
+    back_->write(index, tmp.get()->getBuf(), tmp.get()->getSize());
     if (*level == 'F') { // fatal.
       back_->abort(piece("log fatal from file : ",__FILE__, ", line : ", __LINE__));
     }

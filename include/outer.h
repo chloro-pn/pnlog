@@ -1,6 +1,6 @@
 #pragma once
 #include "out_stream_base.h"
-#include "char_array.h"
+#include "char_array_wrapper.h"
 #include "condition_variable_type.h"
 #include "spin_lock.h"
 #include "back_end.h"
@@ -15,8 +15,8 @@ namespace pnlog {
     friend class BackEnd;
   private:
     std::shared_ptr<out_stream_base> out_stream_;
-    std::unique_ptr<CharArray> buf_;
-    using lock_type = spin;
+    std::unique_ptr<CharArrayWrapper> buf_;
+    using lock_type = std::mutex;
     mutable lock_type mut_;
     condition_variable_type<lock_type>::type reopen_or_close_cv_;
     BackEnd* back_;

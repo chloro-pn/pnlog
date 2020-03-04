@@ -15,6 +15,7 @@ namespace pnlog {
     size_type end_;
     bool error_;
     size_type index_;
+    friend class CharArrayWrapper;
     friend class CharArrayAllocator;
 
   public:

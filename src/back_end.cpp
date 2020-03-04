@@ -18,7 +18,11 @@ namespace pnlog {
     outers_.at(static_cast<unsigned int>(index))->write(ptr, n);
   }
 
-  BackEnd::BackEnd(size_type size) :pool_(1),event_pool_(new event_pool()),size_of_streams_and_bufs_(size), stop_(false) {
+  BackEnd::BackEnd(size_type size) :pool_(1),
+                                    event_pool_(new event_pool()),
+                                    size_of_streams_and_bufs_(size),
+                                    ca_allocator_(CharArrayAllocator::instance()),
+                                    stop_(false){
     release_assert(size > 0);
     for (int i = 0; i < size; ++i) {
       outers_.emplace_back(new outer(i, this));
@@ -100,7 +104,7 @@ namespace pnlog {
     return true;
   }
 
-  std::future<void> BackEnd::push_buf(CharArray&& buf) {
+  std::future<void> BackEnd::push_buf(CharArrayWrapper&& buf) {
     auto result = bufs_.push(std::move(buf));
     pool_.push_task([this]()->void {
       this->run_in_back();
@@ -114,9 +118,9 @@ namespace pnlog {
       return;
     }
     for (auto& each : bufs) {
-      CharArray& buf = each.first;
-      size_type index = buf.getIndex();
-      outers_.at(static_cast<unsigned int>(index))->out_stream_->write(buf.getBuf(), buf.getSize());
+      CharArrayWrapper& buf = each.first;
+      size_type index = buf.get()->getIndex();
+      outers_.at(static_cast<unsigned int>(index))->out_stream_->write(buf.get()->getBuf(), buf.get()->getSize());
       each.second.set_value();
     }
   }

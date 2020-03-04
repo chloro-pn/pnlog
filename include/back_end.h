@@ -3,7 +3,7 @@
 #include "thread_pool.h"
 #include "out_stream_base.h"
 #include "blocking_queue.h"
-#include "char_array.h"
+#include "char_array_wrapper.h"
 #include "event_pool.h"
 #include "capture.h"
 #include <memory>
@@ -18,7 +18,6 @@ namespace pnlog {
 
   class BackEnd : public std::enable_shared_from_this<BackEnd> {
     friend class CapTure;
-    using lock_type = std::mutex;
 
   public:
     struct options {
@@ -51,7 +50,7 @@ namespace pnlog {
 
     bool rangecheck(size_type index) const;
 
-    std::future<void> push_buf(CharArray&& buf);
+    std::future<void> push_buf(CharArrayWrapper&& buf);
 
   private:
     ThreadPool pool_;
@@ -60,7 +59,9 @@ namespace pnlog {
 
     size_type size_of_streams_and_bufs_;
 
-    BlockingQueue<CharArray> bufs_;
+    std::shared_ptr<CharArrayAllocator> ca_allocator_;
+
+    BlockingQueue<CharArrayWrapper> bufs_;
 
     std::vector<std::unique_ptr<outer>> outers_;
 
