@@ -11,6 +11,9 @@ a c++ log library based on c++11 for linux.
 * 支持打开/关闭时间戳记录
 * 日志记录，reopen，close接口线程安全
 
+# benchmark
+<img src="https://github.com/chloro-pn/pnlog/eperiment_for_linux/pic/1" width="450" height="300">
+
 # build
 pnlog uses cmake build tool to build the project.
 ```console
