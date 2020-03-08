@@ -2,17 +2,18 @@
 a c++ log library based on c++11 for linux.
 
 # features
-* 多日志文件
-* 基于日志文件的同步/异步模式
-* 基于前端对象的日志等级
-* 基于日志文件的按时间间隔回滚
-* 日志文件运行时关闭
-* 支持输出到stdout
-* 支持打开/关闭时间戳记录
-* 日志记录，reopen，close接口线程安全
+* 支持多日志文件同时打开
+* 支持异步/同步模式
+* 支持日志等级调整（非线程安全）
+* 支持基于时间间隔的日志回滚（目前不会删除过期日志）
+* 支持日志文件运行时关闭
+* 输出到磁盘文件，标准输出，也支持自定义输出接口
+* 支持运行时打开/关闭时间戳 （非线程安全）
+* 通过使用log-buf的对象池，避免频繁的申请/释放动态内存。
+* 通过使用自旋锁而不是std::mutex，减少并发开销。
 
 # benchmark
-<img src="https://github.com/chloro-pn/pnlog/blob/master/pic/1" width="450" height="300" />
+<img src="https://github.com/chloro-pn/pnlog/blob/master/pic/1.png" width="450" height="350" />
 
 # build
 pnlog uses cmake build tool to build the project.
