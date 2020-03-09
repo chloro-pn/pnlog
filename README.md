@@ -29,8 +29,7 @@ MIT License
 # how to use
 you can research example code in /examples dir to learn how to use pnlog.
 
-## write to stdout.
-
+* write to stdout.
 * Global object backend's type is std::shared_ptr<BackEnd>, and you can only
 have one object of the class BackEnd, which means the constructor of class BackEnd
 is privated.
@@ -68,7 +67,7 @@ int main() {
 }
 ```
 
-## use enable_time() method and disable_time() method to choose weather cap1 log timestamp.
+* use enable_time() method and disable_time() method to choose timestamp or not.
 ```c++ 
 #include "../include/pnlog.h"
 
@@ -86,13 +85,8 @@ int main() {
 }
 ```
 
-## CapTure object can be constructed by invalid index(no log files correspond to it), under the condition ,the log will be abandoned.
-* More than one CapTure object can be constructed by the one index, and cap1 and cap2 are different objects :
-```c++
-auto cap1 = backend->get_capture(0);
-auto cap2 = backend->get_capture(0);
-```
-* each CapTure object has own log_level and log format.
+* CapTure object can be constructed by invalid index(no log files correspond to it), under the condition ,the log will be abandoned.
+* More than one CapTure object can be constructed by the same index, and each object has its own log_level and format.
 ```c++
 #include "../include/pnlog.h"
 
@@ -110,10 +104,8 @@ int main() {
   return 0;
 }
 ```
-## open a log file.
-* Use backend->open method to open a log file, and you can use pnlog::BackEnd::options
-object to choose the different model.
-* each log file can be opened by sync model (which means call out_stream_base->
+* Use backend->open() method to open a log file.
+* Log file can be opened by sync model (which means call out_stream_base->
 write() for each log)and async model (store a lot of logs in memory cache and
 write to log file once).
 ```c++
@@ -137,7 +129,7 @@ int main() {
   return 0;
 }
 ```
-## capture would not close log file identified by index, you can call close method to do it.
+* capture's destructor would not close log file identified by index, and the log file would be closed by backend's destructor.However, you can call capture->close() method to do it.
 ```c++
 #include "../include/pnlog.h"
 #include "../include/file_out_stream.h"
@@ -155,13 +147,13 @@ int main() {
   }
   cap1->close();
   std::cout << "the program is running now, but log file has been closed, try to "
-               "check out it.\n";
+               "check it out.\n";
   getchar();
   return 0;
 }
 ```
 
-## log rotate can be supported by set op object. pnlog support duration-based rotate models.
+* log rotate can be supported by set BackEnd::options object. Pnlog support duration-based rotate model.
 ```c++
 #include "../include/pnlog.h"
 #include "../include/file_out_stream.h"
@@ -188,7 +180,7 @@ int main() {
 }
 ```
 
-## thread-safe reopen method and close method.
+* thread-safe reopen method and close method.
 ```c++
 #include "../include/pnlog.h"
 #include "../include/file_out_stream.h"
@@ -219,7 +211,7 @@ int main() {
 }
 ```
 
-## configure log schedule for your class.
+* Configure log schedule for your class.
 ```c++
 #include "../include/pnlog.h"
 #include "../include/file_out_stream.h"
