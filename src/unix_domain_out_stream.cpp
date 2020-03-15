@@ -5,9 +5,6 @@
 #include <cstring>
 #include <unistd.h>
 
-#include <iostream>
-#include <errno.h>
-
 namespace pnlog {
 unix_domain_out_stream::unix_domain_out_stream(std::string filepath):unix_fd(-1),closed(false) {
   unix_fd = socket(AF_LOCAL, SOCK_STREAM, 0);
@@ -18,8 +15,8 @@ unix_domain_out_stream::unix_domain_out_stream(std::string filepath):unix_fd(-1)
   bcopy(filepath.c_str(),(char*)unix_addr.sun_path, sizeof(unix_addr.sun_path));
   socklen_t len = sizeof(unix_addr);
   int result = connect(unix_fd, (struct sockaddr*)&unix_addr, len);
-  std::cout << strerror(errno) << std::endl;
-  //release_assert(result == 0);
+  //std::cout << strerror(errno) << std::endl;
+  release_assert(result == 0);
 }
 
 void unix_domain_out_stream::write(const char *ptr, size_type n) {
