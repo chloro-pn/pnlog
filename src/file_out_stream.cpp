@@ -13,7 +13,7 @@ namespace pnlog {
     release_assert(file_ != nullptr);
     auto code = fwrite(ptr, static_cast<size_t>(n), static_cast<size_t>(1), file_);
     release_assert(code == 1 || code == 0);
-    //fflush(file_);
+    fflush(file_);
   }
 
   void FileOutStream::close() {
